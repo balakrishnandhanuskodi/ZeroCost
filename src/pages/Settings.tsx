@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import {
   Moon, Globe, Bell, Shield, Fingerprint, CloudUpload,
-  ChevronRight, User, DollarSign, Users, Target, TrendingUp
+  ChevronRight, User, DollarSign, Users, Target, TrendingUp, LogOut
 } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
@@ -42,6 +43,18 @@ export default function Settings() {
   const [notifications, setNotifications] = useState(true)
   const [biometric, setBiometric] = useState(true)
   const [cloudBackup, setCloudBackup] = useState(true)
+  const { user, signOut } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
+
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    try {
+      await signOut()
+    } catch (err) {
+      console.error('Sign out failed:', err)
+    }
+    setSigningOut(false)
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 pb-24 md:pb-8 animate-fade-in">
@@ -54,12 +67,12 @@ export default function Settings() {
       <div className="bg-gradient-to-br from-[#16a34a] to-[#4f46e5] rounded-2xl p-6 text-white mb-6 shadow-lg">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-2xl font-bold font-display">
-            BK
+            {user?.email?.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
-            <div className="font-display font-700 text-xl">Bala Kumar</div>
-            <div className="text-sm opacity-80">bala@finpilot.ai</div>
-            <div className="text-xs opacity-60 mt-1">Member since January 2024</div>
+            <div className="font-display font-700 text-xl">{user?.email?.split('@')[0]}</div>
+            <div className="text-sm opacity-80">{user?.email}</div>
+            <div className="text-xs opacity-60 mt-1">Member since {new Date(user?.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</div>
           </div>
           <button className="px-4 py-2 bg-white/20 rounded-xl text-sm font-semibold hover:bg-white/30 transition-all">
             Edit
@@ -98,6 +111,14 @@ export default function Settings() {
           <SettingRow icon={Fingerprint} label="Biometric Login" desc="Face ID / Fingerprint" right={<Toggle checked={biometric} onChange={() => setBiometric(!biometric)} />} />
           <SettingRow icon={CloudUpload} label="Cloud Backup" desc="Auto backup to cloud" right={<Toggle checked={cloudBackup} onChange={() => setCloudBackup(!cloudBackup)} />} />
           <SettingRow icon={Shield} label="Change Password" desc="Last changed 3 months ago" right={<ChevronRight size={16} className="text-[var(--muted-foreground)]" />} />
+          <button
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="w-full mt-4 flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 disabled:bg-gray-100 text-red-600 rounded-xl font-medium transition-colors"
+          >
+            <LogOut size={16} />
+            {signingOut ? 'Signing Out...' : 'Sign Out'}
+          </button>
         </div>
 
         {/* Financial Profile */}

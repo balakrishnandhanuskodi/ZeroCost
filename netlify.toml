@@ -1,0 +1,22 @@
+[build]
+  command = "pnpm install && pnpm build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "10"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  command = "pnpm install && pnpm build"
+
+[context.preview]
+  command = "pnpm install && pnpm build"
+
+[context.deploy-preview]
+  command = "pnpm install && pnpm build"
