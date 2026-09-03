@@ -1,6 +1,9 @@
-import { useState } from 'react'
-import Sidebar from './components/Sidebar'
-import BottomNav from './components/BottomNav'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+
+import Login from './pages/Login'
+import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Budget from './pages/Budget'
@@ -12,47 +15,102 @@ import AICoach from './pages/AICoach'
 import Settings from './pages/Settings'
 import Notifications from './pages/Notifications'
 
-type Page = 'dashboard' | 'transactions' | 'budget' | 'loans' | 'goals' | 'savings' | 'reports' | 'ai-coach' | 'settings' | 'notifications'
-
-function PageContent({ page, onNavigate }: { page: Page; onNavigate: (p: string) => void }) {
-  switch (page) {
-    case 'dashboard': return <Dashboard onNavigate={onNavigate} />
-    case 'transactions': return <Transactions />
-    case 'budget': return <Budget />
-    case 'loans': return <Loans />
-    case 'goals': return <Goals />
-    case 'savings': return <Savings />
-    case 'reports': return <Reports />
-    case 'ai-coach': return <AICoach />
-    case 'settings': return <Settings />
-    case 'notifications': return <Notifications onBack={() => onNavigate('dashboard')} />
-    default: return <Dashboard onNavigate={onNavigate} />
-  }
-}
-
 export default function App() {
-  const [page, setPage] = useState<Page>('dashboard')
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-
-  const navigate = (p: string) => setPage(p as Page)
-
-  const isAICoach = page === 'ai-coach'
-
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--background)]">
-      <Sidebar
-        active={page}
-        onNavigate={navigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        onNotifications={() => navigate('notifications')}
-      />
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-      <main className={`flex-1 overflow-y-auto ${isAICoach ? 'overflow-hidden' : ''}`}>
-        <PageContent page={page} onNavigate={navigate} />
-      </main>
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute>
+                <Transactions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/budget"
+            element={
+              <ProtectedRoute>
+                <Budget />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/loans"
+            element={
+              <ProtectedRoute>
+                <Loans />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/goals"
+            element={
+              <ProtectedRoute>
+                <Goals />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/savings"
+            element={
+              <ProtectedRoute>
+                <Savings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-coach"
+            element={
+              <ProtectedRoute>
+                <AICoach />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
 
-      <BottomNav active={page} onNavigate={navigate} />
-    </div>
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
