@@ -82,6 +82,18 @@ export function getRemainingMonths(startDate: string, tenureMonths: number): num
   return Math.max(0, tenureMonths - monthsPassed)
 }
 
+// Calculate Month 1 amortization (actual principal and interest for first month)
+export function calculateMonth1Amortization(principal: number, annualRate: number, emi: number): { principal: number; interest: number } {
+  const monthlyRate = annualRate / 100 / 12
+  const interestMonth1 = principal * monthlyRate
+  const principalMonth1 = emi - interestMonth1
+
+  return {
+    principal: Math.max(0, principalMonth1),
+    interest: Math.max(0, interestMonth1)
+  }
+}
+
 // Get all loans for the current user
 export async function getLoansByUser(userId: string): Promise<LoanRecord[]> {
   if (!isSupabaseConfigured || !supabase) {

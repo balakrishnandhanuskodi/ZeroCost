@@ -5,7 +5,7 @@ import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
@@ -312,11 +312,16 @@ export default function Loans() {
 
                   {/* Pie Chart */}
                   <div className="flex justify-center">
-                    <LoanEMIPieChart
-                      principalAmount={tenureMonths > 0 ? loan.principal / tenureMonths : 0}
-                      interestAmount={emi - (tenureMonths > 0 ? loan.principal / tenureMonths : 0)}
-                      totalEMI={emi}
-                    />
+                    {(() => {
+                      const month1 = calculateMonth1Amortization(loan.principal, loan.interest_rate, emi)
+                      return (
+                        <LoanEMIPieChart
+                          principalAmount={month1.principal}
+                          interestAmount={month1.interest}
+                          totalEMI={emi}
+                        />
+                      )
+                    })()}
                   </div>
                 </div>
               </div>
