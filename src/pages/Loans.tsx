@@ -5,11 +5,12 @@ import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, getLoanPaymentHistory, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
   const [loans, setLoans] = useState<LoanRecord[]>([])
+  const [paymentHistory, setPaymentHistory] = useState<Record<string, { count: number; totalAmount: number }>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -26,6 +27,13 @@ export default function Loans() {
     try {
       const data = await getLoansByUser(user.id)
       setLoans(data)
+
+      // Load payment history for each loan
+      const history: Record<string, { count: number; totalAmount: number }> = {}
+      for (const loan of data) {
+        history[loan.id] = await getLoanPaymentHistory(loan.id)
+      }
+      setPaymentHistory(history)
     } catch (err) {
       setError('Failed to load loans')
       console.error(err)
@@ -307,6 +315,18 @@ export default function Loans() {
                     <div>
                       <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Monthly EMI</p>
                       <p className="text-[12px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
+                    </div>
+                  </div>
+
+                  {/* Payment History Row */}
+                  <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-[var(--border)]">
+                    <div>
+                      <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">EMIs Paid</p>
+                      <p className="text-[12px] font-semibold text-[var(--foreground)]">{paymentHistory[loan.id]?.count || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Total Paid</p>
+                      <p className="text-[12px] font-semibold text-[var(--foreground)]">₹{Math.round(paymentHistory[loan.id]?.totalAmount || 0).toLocaleString('en-IN')}</p>
                     </div>
                   </div>
 
