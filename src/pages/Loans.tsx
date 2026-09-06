@@ -46,7 +46,7 @@ export default function Loans() {
     }
   }
 
-  const handleAddLoan = (formData: LoanFormInput) => {
+  const handleAddLoan = async (formData: LoanFormInput) => {
     // Show EMI analysis dialog before creating loan
     setPendingFormData(formData)
     setShowEMIAnalysis(true)
