@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const DEFAULT_PREFERENCES: UserPreferences = {
-  currency: 'USD',
+  currency: 'INR',
   language: 'en',
   notifications: true,
   darkMode: false,
