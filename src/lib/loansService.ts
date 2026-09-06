@@ -145,6 +145,7 @@ export interface PaymentScheduleItem {
   due_date: string
   principal_amount: number
   interest_amount: number
+  emi_amount: number
   total_payment: number
   balance_after_payment: number
   status: 'pending' | 'paid'
@@ -175,14 +176,15 @@ export function generatePaymentSchedule(
     const interestAmount = Math.round(balance * monthlyRate * 100) / 100
     let principalAmount: number
     let totalPayment: number
+    const emiAmount = Math.round(standardEMI * 100) / 100
 
     if (i === 1) {
-      // First payment - use the first EMI amount provided
+      // First payment - may include stub interest, so total_payment = firstEMIAmount
       totalPayment = firstEMIAmount
       principalAmount = totalPayment - interestAmount
     } else {
       // Subsequent payments - use standard EMI
-      totalPayment = Math.round(standardEMI * 100) / 100
+      totalPayment = emiAmount
       principalAmount = totalPayment - interestAmount
     }
 
@@ -197,6 +199,7 @@ export function generatePaymentSchedule(
       due_date: dueDate.toISOString().split('T')[0],
       principal_amount: Math.round(principalAmount * 100) / 100,
       interest_amount: Math.round(interestAmount * 100) / 100,
+      emi_amount: Math.round(emiAmount * 100) / 100,
       total_payment: Math.round(totalPayment * 100) / 100,
       balance_after_payment: Math.round(balance * 100) / 100,
       status: i <= emirsPaidCount ? 'paid' : 'pending'
@@ -339,6 +342,7 @@ export async function createLoanPaymentSchedule(userId: string, loanId: string, 
       due_date: item.due_date,
       principal_amount: item.principal_amount,
       interest_amount: item.interest_amount,
+      emi_amount: item.emi_amount,
       total_payment: item.total_payment,
       balance_after_payment: item.balance_after_payment,
       status: item.status,
@@ -432,6 +436,7 @@ export async function updateLoanPaymentSchedule(userId: string, loanId: string, 
       due_date: item.due_date,
       principal_amount: item.principal_amount,
       interest_amount: item.interest_amount,
+      emi_amount: item.emi_amount,
       total_payment: item.total_payment,
       balance_after_payment: item.balance_after_payment,
       status: item.status,
