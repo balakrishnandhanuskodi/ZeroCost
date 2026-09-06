@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Edit2, AlertCircle } from 'lucide-react'
+import { Plus, Trash2, Edit2, AlertCircle, Briefcase } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
@@ -168,7 +168,7 @@ export default function Loans() {
         </div>
       ) : loans.length === 0 ? (
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8 text-center">
-          <div className="text-3xl mb-2">📋</div>
+          <Briefcase size={32} className="mx-auto mb-2 text-[var(--muted-foreground)]" />
           <h3 className="font-display font-700 text-sm text-[var(--foreground)] mb-1">No loans yet</h3>
           <p className="text-xs text-[var(--muted-foreground)] mb-4">
             Add your first loan to get started.

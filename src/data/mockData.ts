@@ -19,14 +19,14 @@ export const summaryCards = [
 ]
 
 export const budgetCategories = [
-  { name: 'Food & Dining', budget: 15000, spent: 13240, icon: '🍽️', color: '#f97316' },
-  { name: 'Fuel & Transport', budget: 8000, spent: 6180, icon: '⛽', color: '#0ea5e9' },
-  { name: 'Shopping', budget: 10000, spent: 12450, icon: '🛍️', color: '#ec4899' },
-  { name: 'Home & Utilities', budget: 12000, spent: 9800, icon: '🏠', color: '#8b5cf6' },
-  { name: 'Medical', budget: 5000, spent: 2100, icon: '💊', color: '#22c55e' },
-  { name: 'Education', budget: 8000, spent: 7200, icon: '📚', color: '#f59e0b' },
-  { name: 'Travel', budget: 5000, spent: 3400, icon: '✈️', color: '#06b6d4' },
-  { name: 'Entertainment', budget: 4000, spent: 4850, icon: '🎬', color: '#a855f7' },
+  { name: 'Food & Dining', budget: 15000, spent: 13240, icon: 'UtensilsCrossed', color: '#f97316' },
+  { name: 'Fuel & Transport', budget: 8000, spent: 6180, icon: 'Zap', color: '#0ea5e9' },
+  { name: 'Shopping', budget: 10000, spent: 12450, icon: 'ShoppingBag', color: '#ec4899' },
+  { name: 'Home & Utilities', budget: 12000, spent: 9800, icon: 'Home', color: '#8b5cf6' },
+  { name: 'Medical', budget: 5000, spent: 2100, icon: 'Pill', color: '#22c55e' },
+  { name: 'Education', budget: 8000, spent: 7200, icon: 'Book', color: '#f59e0b' },
+  { name: 'Travel', budget: 5000, spent: 3400, icon: 'Plane', color: '#06b6d4' },
+  { name: 'Entertainment', budget: 4000, spent: 4850, icon: 'Film', color: '#a855f7' },
 ]
 
 export const transactions = [
@@ -80,22 +80,22 @@ export const loans = [
 ]
 
 export const goals = [
-  { id: 1, name: 'Emergency Fund', target: 350000, current: 210000, icon: '🛡️', color: '#16a34a', deadline: '2026-12-31' },
-  { id: 2, name: 'New Car', target: 1200000, current: 340000, icon: '🚗', color: '#0ea5e9', deadline: '2027-06-30' },
-  { id: 3, name: 'Europe Vacation', target: 250000, current: 87000, icon: '✈️', color: '#a855f7', deadline: '2027-03-15' },
-  { id: 4, name: 'House Down Payment', target: 2500000, current: 890000, icon: '🏠', color: '#f97316', deadline: '2029-01-01' },
-  { id: 5, name: 'Retirement Corpus', target: 30000000, current: 1240000, icon: '🌅', color: '#f59e0b', deadline: '2055-01-01' },
+  { id: 1, name: 'Emergency Fund', target: 350000, current: 210000, icon: 'Shield', color: '#16a34a', deadline: '2026-12-31' },
+  { id: 2, name: 'New Car', target: 1200000, current: 340000, icon: 'Car', color: '#0ea5e9', deadline: '2027-06-30' },
+  { id: 3, name: 'Europe Vacation', target: 250000, current: 87000, icon: 'Plane', color: '#a855f7', deadline: '2027-03-15' },
+  { id: 4, name: 'House Down Payment', target: 2500000, current: 890000, icon: 'Home', color: '#f97316', deadline: '2029-01-01' },
+  { id: 5, name: 'Retirement Corpus', target: 30000000, current: 1240000, icon: 'Sun', color: '#f59e0b', deadline: '2055-01-01' },
 ]
 
 export const savings = [
-  { name: 'Emergency Fund', value: 210000, color: '#16a34a', icon: '🛡️' },
-  { name: 'Fixed Deposits', value: 800000, color: '#0ea5e9', icon: '🏦' },
-  { name: 'Mutual Funds', value: 580000, color: '#4f46e5', icon: '📈' },
-  { name: 'Gold', value: 240000, color: '#f59e0b', icon: '🥇' },
-  { name: 'Stocks', value: 320000, color: '#ec4899', icon: '📊' },
-  { name: 'PF / EPF', value: 445000, color: '#8b5cf6', icon: '💼' },
-  { name: 'NPS', value: 180000, color: '#06b6d4', icon: '🏛️' },
-  { name: 'Monthly SIP', value: 12000, color: '#f97316', icon: '🔄' },
+  { name: 'Emergency Fund', value: 210000, color: '#16a34a', icon: 'Shield' },
+  { name: 'Fixed Deposits', value: 800000, color: '#0ea5e9', icon: 'Building2' },
+  { name: 'Mutual Funds', value: 580000, color: '#4f46e5', icon: 'TrendingUp' },
+  { name: 'Gold', value: 240000, color: '#f59e0b', icon: 'Award' },
+  { name: 'Stocks', value: 320000, color: '#ec4899', icon: 'BarChart3' },
+  { name: 'PF / EPF', value: 445000, color: '#8b5cf6', icon: 'Briefcase' },
+  { name: 'NPS', value: 180000, color: '#06b6d4', icon: 'Building' },
+  { name: 'Monthly SIP', value: 12000, color: '#f97316', icon: 'RotateCw' },
 ]
 
 export const spendingTrend = [
