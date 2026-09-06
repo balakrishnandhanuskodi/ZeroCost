@@ -206,6 +206,35 @@ export async function updateLoan(loanId: string, data: LoanFormInput): Promise<L
   }
 }
 
+// Get payment history for a loan
+export async function getLoanPaymentHistory(loanId: string): Promise<{ count: number; totalAmount: number }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { count: 0, totalAmount: 0 }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('loan_payments')
+      .select('total_payment')
+      .eq('loan_id', loanId)
+      .eq('status', 'paid')
+      .order('payment_number', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching payment history:', error)
+      return { count: 0, totalAmount: 0 }
+    }
+
+    const payments = data || []
+    const totalAmount = payments.reduce((sum, p) => sum + (p.total_payment || 0), 0)
+
+    return { count: payments.length, totalAmount }
+  } catch (err) {
+    console.error('Failed to fetch payment history:', err)
+    return { count: 0, totalAmount: 0 }
+  }
+}
+
 // Delete a loan
 export async function deleteLoan(loanId: string): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) {
