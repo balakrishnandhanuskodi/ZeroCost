@@ -20,6 +20,10 @@ export interface LoanRecord {
   end_date: string | null
   monthly_payment_date: number | null
   emi_amount: number | null
+  first_emi_date: string
+  first_emi_amount: number
+  emis_paid_count: number
+  last_payment_date: string | null
   status: LoanStatus
   health_score?: number
   notes: string | null
@@ -39,8 +43,44 @@ export interface LoanFormInput {
   start_date: string
   end_date?: string
   monthly_payment_date?: string
+  first_emi_date: string
+  first_emi_amount: string
+  emis_paid_count?: string
+  last_payment_date?: string
   status: LoanStatus
   notes?: string
+}
+
+// Analyze first EMI amount to detect stub period
+export interface FirstEMIAnalysis {
+  standardEMI: number
+  firstEMIAmount: number
+  stubInterest: number
+  hasStubPeriod: boolean
+  note: string
+}
+
+export function analyzeFirstEMI(principal: number, rate: number, tenure: number, tenureUnit: TenureUnit, firstEMIAmount: number): FirstEMIAnalysis {
+  const tenureMonths = tenureUnit === 'years' ? tenure * 12 : tenure
+  const standardEMI = calculateEMI(principal, rate, tenureMonths)
+  const stubInterest = Math.round((firstEMIAmount - standardEMI) * 100) / 100
+
+  const hasStubPeriod = Math.abs(stubInterest) > 1 // Allow 1 rupee difference for rounding
+
+  let note = ''
+  if (hasStubPeriod && stubInterest > 0) {
+    note = `First payment includes ₹${Math.round(stubInterest)} pre-EMI interest (stub period). Remaining ${tenureMonths - 1} payments: ₹${Math.round(standardEMI)} each.`
+  } else {
+    note = `All ${tenureMonths} payments: ₹${Math.round(standardEMI)} each.`
+  }
+
+  return {
+    standardEMI: Math.round(standardEMI),
+    firstEMIAmount: Math.round(firstEMIAmount),
+    stubInterest: Math.round(stubInterest),
+    hasStubPeriod,
+    note
+  }
 }
 
 // Convert form data to database format
@@ -61,6 +101,10 @@ function formatLoanData(data: LoanFormInput) {
     end_date: data.end_date || null,
     monthly_payment_date: data.monthly_payment_date ? parseInt(data.monthly_payment_date) : null,
     emi_amount: emiAmount,
+    first_emi_date: data.first_emi_date,
+    first_emi_amount: parseFloat(data.first_emi_amount),
+    emis_paid_count: data.emis_paid_count ? parseInt(data.emis_paid_count) : 0,
+    last_payment_date: data.last_payment_date || null,
     status: data.status,
     health_score: 75,
     notes: data.notes || null,
@@ -92,6 +136,74 @@ export function calculateMonth1Amortization(principal: number, annualRate: numbe
     principal: Math.max(0, principalMonth1),
     interest: Math.max(0, interestMonth1)
   }
+}
+
+// Generate complete payment schedule
+export interface PaymentScheduleItem {
+  payment_number: number
+  payment_month: string
+  due_date: string
+  principal_amount: number
+  interest_amount: number
+  total_payment: number
+  balance_after_payment: number
+  status: 'pending' | 'paid'
+  payment_date?: string
+}
+
+export function generatePaymentSchedule(
+  loanId: string,
+  principal: number,
+  rate: number,
+  tenureMonths: number,
+  firstEMIDate: string,
+  firstEMIAmount: number,
+  emirsPaidCount: number = 0
+): PaymentScheduleItem[] {
+  const monthlyRate = rate / 100 / 12
+  const standardEMI = calculateEMI(principal, rate, tenureMonths)
+  const schedule: PaymentScheduleItem[] = []
+
+  let balance = principal
+  const firstDate = new Date(firstEMIDate)
+
+  for (let i = 1; i <= tenureMonths; i++) {
+    // Calculate due date (first EMI date + (i-1) months)
+    const dueDate = new Date(firstDate)
+    dueDate.setMonth(dueDate.getMonth() + (i - 1))
+
+    const interestAmount = Math.round(balance * monthlyRate * 100) / 100
+    let principalAmount: number
+    let totalPayment: number
+
+    if (i === 1) {
+      // First payment - use the first EMI amount provided
+      totalPayment = firstEMIAmount
+      principalAmount = totalPayment - interestAmount
+    } else {
+      // Subsequent payments - use standard EMI
+      totalPayment = Math.round(standardEMI * 100) / 100
+      principalAmount = totalPayment - interestAmount
+    }
+
+    balance = Math.max(0, balance - principalAmount)
+
+    const paymentMonth = new Date(firstDate)
+    paymentMonth.setMonth(paymentMonth.getMonth() + (i - 1))
+
+    schedule.push({
+      payment_number: i,
+      payment_month: paymentMonth.toISOString().split('T')[0],
+      due_date: dueDate.toISOString().split('T')[0],
+      principal_amount: Math.round(principalAmount * 100) / 100,
+      interest_amount: Math.round(interestAmount * 100) / 100,
+      total_payment: Math.round(totalPayment * 100) / 100,
+      balance_after_payment: Math.round(balance * 100) / 100,
+      status: i <= emirsPaidCount ? 'paid' : 'pending'
+    })
+  }
+
+  return schedule
 }
 
 // Get all loans for the current user

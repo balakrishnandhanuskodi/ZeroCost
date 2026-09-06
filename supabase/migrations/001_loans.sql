@@ -14,6 +14,15 @@ CREATE TABLE loans (
   end_date DATE,
   monthly_payment_date INTEGER CHECK (monthly_payment_date BETWEEN 1 AND 31),
   emi_amount DECIMAL,
+
+  -- First EMI tracking (primary anchor for payment schedule)
+  first_emi_date DATE NOT NULL,
+  first_emi_amount DECIMAL NOT NULL CHECK (first_emi_amount > 0),
+
+  -- Retroactive payment tracking
+  emis_paid_count INTEGER DEFAULT 0 CHECK (emis_paid_count >= 0),
+  last_payment_date DATE,
+
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'closed', 'defaulted')),
   health_score INT DEFAULT 75 CHECK (health_score >= 0 AND health_score <= 100),
   health_score_updated_at TIMESTAMP,

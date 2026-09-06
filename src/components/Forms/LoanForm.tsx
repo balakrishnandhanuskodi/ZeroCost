@@ -21,6 +21,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       tenure: '',
       tenure_unit: 'months',
       start_date: '',
+      first_emi_date: '',
+      first_emi_amount: '',
       status: 'active',
     }
   )
@@ -36,6 +38,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
     if (!formData.interest_rate || parseFloat(formData.interest_rate) < 0) newErrors.interest_rate = 'Valid interest rate required'
     if (!formData.tenure || parseInt(formData.tenure) <= 0) newErrors.tenure = 'Valid tenure required'
     if (!formData.start_date) newErrors.start_date = 'Start date is required'
+    if (!formData.first_emi_date) newErrors.first_emi_date = 'First EMI date is required'
+    if (!formData.first_emi_amount || parseFloat(formData.first_emi_amount) <= 0) newErrors.first_emi_amount = 'Valid first EMI amount required'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -212,6 +216,43 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
         </div>
       </div>
 
+      {/* First EMI Date & Amount */}
+      <div>
+        <div className="mb-2 p-2 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
+          <p className="text-[11px] text-[var(--muted-foreground)]">
+            <span className="font-semibold text-[var(--primary)]">📌 First EMI Details</span><br/>
+            These determine your payment schedule. If your first payment included pre-EMI/stub interest, please enter the full amount here.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First EMI Date *</label>
+            <input
+              type="date"
+              name="first_emi_date"
+              value={formData.first_emi_date}
+              onChange={handleChange}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+            {errors.first_emi_date && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_date}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First EMI Amount (₹) *</label>
+            <input
+              type="number"
+              name="first_emi_amount"
+              value={formData.first_emi_amount}
+              onChange={handleChange}
+              placeholder="0"
+              min="0"
+              step="0.01"
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+            {errors.first_emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_amount}</p>}
+          </div>
+        </div>
+      </div>
+
       {/* Payment Date & Status */}
       <div className="grid grid-cols-2 gap-2">
         <div>
@@ -239,6 +280,40 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             <option value="closed">Closed</option>
             <option value="defaulted">Defaulted</option>
           </select>
+        </div>
+      </div>
+
+      {/* Payment History (Optional) */}
+      <div>
+        <div className="mb-2 p-2 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
+          <p className="text-[11px] text-[var(--muted-foreground)]">
+            <span className="font-semibold text-[var(--warning)]">📊 Already Paying? (Optional)</span><br/>
+            If you've already paid some EMIs, enter the count and last payment date. System will mark them as paid.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">EMIs Already Paid</label>
+            <input
+              type="number"
+              name="emis_paid_count"
+              value={formData.emis_paid_count || ''}
+              onChange={handleChange}
+              placeholder="0"
+              min="0"
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Last Payment Date</label>
+            <input
+              type="date"
+              name="last_payment_date"
+              value={formData.last_payment_date || ''}
+              onChange={handleChange}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+          </div>
         </div>
       </div>
 
