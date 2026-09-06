@@ -6,12 +6,13 @@ import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
 import EMIAnalysisDialog from '../components/Loans/EMIAnalysisDialog'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, createLoanPaymentSchedule, updateLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, getPaidEMIBreakdown, createLoanPaymentSchedule, updateLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
   const [loans, setLoans] = useState<LoanRecord[]>([])
   const [paymentHistory, setPaymentHistory] = useState<Record<string, { count: number; totalAmount: number }>>({})
+  const [paidEMIBreakdown, setPaidEMIBreakdown] = useState<Record<string, { principalPaid: number; interestPaid: number; totalPaid: number }>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -32,12 +33,15 @@ export default function Loans() {
       const data = await getLoansByUser(user.id)
       setLoans(data)
 
-      // Load payment history for each loan
+      // Load payment history and breakdown for each loan
       const history: Record<string, { count: number; totalAmount: number }> = {}
+      const breakdown: Record<string, { principalPaid: number; interestPaid: number; totalPaid: number }> = {}
       for (const loan of data) {
         history[loan.id] = await getLoanPaymentHistory(loan.id)
+        breakdown[loan.id] = await getPaidEMIBreakdown(loan.id)
       }
       setPaymentHistory(history)
+      setPaidEMIBreakdown(breakdown)
     } catch (err) {
       setError('Failed to load loans')
       console.error(err)
@@ -86,10 +90,12 @@ export default function Loans() {
           setError('Warning: Payment schedule could not be created. Please check browser console.')
         }
 
-        // Load payment history for the new loan
+        // Load payment history and breakdown for the new loan
         const newLoanHistory = await getLoanPaymentHistory(newLoan.id)
+        const newLoanBreakdown = await getPaidEMIBreakdown(newLoan.id)
         console.log(`Payment history for loan ${newLoan.id}:`, newLoanHistory)
         setPaymentHistory(prev => ({ ...prev, [newLoan.id]: newLoanHistory }))
+        setPaidEMIBreakdown(prev => ({ ...prev, [newLoan.id]: newLoanBreakdown }))
 
         setLoans([newLoan, ...loans])
         setShowForm(false)
@@ -136,9 +142,11 @@ export default function Loans() {
 
         await updateLoanPaymentSchedule(user.id, editingLoan.id, paymentSchedule)
 
-        // Reload payment history for the updated loan
+        // Reload payment history and breakdown for the updated loan
         const updatedHistory = await getLoanPaymentHistory(editingLoan.id)
+        const updatedBreakdown = await getPaidEMIBreakdown(editingLoan.id)
         setPaymentHistory(prev => ({ ...prev, [editingLoan.id]: updatedHistory }))
+        setPaidEMIBreakdown(prev => ({ ...prev, [editingLoan.id]: updatedBreakdown }))
 
         setLoans(loans.map(l => l.id === editingLoan.id ? updated : l))
         setEditingLoan(null)
@@ -409,12 +417,25 @@ export default function Loans() {
                   {/* Pie Chart */}
                   <div className="flex justify-center">
                     {(() => {
+                      const breakdown = paidEMIBreakdown[loan.id]
+                      if (breakdown && breakdown.totalPaid > 0) {
+                        return (
+                          <LoanEMIPieChart
+                            principalAmount={breakdown.principalPaid}
+                            interestAmount={breakdown.interestPaid}
+                            totalEMI={breakdown.totalPaid}
+                            label="Total Paid Breakdown"
+                          />
+                        )
+                      }
+                      // Fallback to Month 1 if no paid EMIs
                       const month1 = calculateMonth1Amortization(loan.principal, loan.interest_rate, emi)
                       return (
                         <LoanEMIPieChart
                           principalAmount={month1.principal}
                           interestAmount={month1.interest}
                           totalEMI={emi}
+                          label="Month 1 breakdown"
                         />
                       )
                     })()}
