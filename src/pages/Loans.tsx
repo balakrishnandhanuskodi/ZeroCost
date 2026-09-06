@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
-import EMISplitCard from '../components/Loans/EMISplitCard'
 import DashboardEMISplit from '../components/Loans/DashboardEMISplit'
 import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, LoanRecord, LoanFormInput } from '../lib/loansService'
 
@@ -318,14 +317,6 @@ export default function Loans() {
                     <p className="text-[10px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
                   </div>
                 </div>
-
-                {/* EMI Split Breakdown */}
-                <EMISplitCard
-                  totalEMI={emi}
-                  principalAmount={tenureMonths > 0 ? loan.principal / tenureMonths : 0}
-                  interestAmount={emi - (tenureMonths > 0 ? loan.principal / tenureMonths : 0)}
-                  compact={true}
-                />
               </div>
             )
           })}
