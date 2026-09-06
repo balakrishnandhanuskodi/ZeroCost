@@ -74,15 +74,21 @@ export default function Loans() {
           pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0
         )
 
+        console.log(`Creating ${paymentSchedule.length} payment records for loan ${newLoan.id}`)
+        console.log('First payment record:', paymentSchedule[0])
+
         const scheduleCreated = await createLoanPaymentSchedule(user.id, newLoan.id, paymentSchedule)
+        console.log('Schedule creation result:', scheduleCreated)
+
         if (!scheduleCreated) {
-          console.warn('Payment schedule creation returned false, but continuing with loan creation')
+          console.warn('Payment schedule creation failed')
+          setError('Warning: Payment schedule could not be created. Please check browser console.')
         }
 
         // Load payment history for the new loan
         const newLoanHistory = await getLoanPaymentHistory(newLoan.id)
+        console.log(`Payment history for loan ${newLoan.id}:`, newLoanHistory)
         setPaymentHistory(prev => ({ ...prev, [newLoan.id]: newLoanHistory }))
-        console.log(`Payment history loaded for loan ${newLoan.id}:`, newLoanHistory)
 
         setLoans([newLoan, ...loans])
         setShowForm(false)

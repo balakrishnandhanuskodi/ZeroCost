@@ -321,10 +321,14 @@ export async function updateLoan(loanId: string, data: LoanFormInput): Promise<L
 // Create payment schedule records in loan_payments table
 export async function createLoanPaymentSchedule(userId: string, loanId: string, schedule: PaymentScheduleItem[]): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) {
+    console.log('Supabase not configured, skipping payment record creation')
     return true // Skip for localStorage fallback
   }
 
   try {
+    console.log(`Preparing ${schedule.length} payment records for loan ${loanId}`)
+    console.log('User ID:', userId)
+
     const paymentRecords = schedule.map(item => ({
       user_id: userId,
       loan_id: loanId,
@@ -340,20 +344,27 @@ export async function createLoanPaymentSchedule(userId: string, loanId: string, 
       skip_penalty: 0,
     }))
 
+    console.log('First record to insert:', paymentRecords[0])
+
     const { error, data } = await supabase
       .from('loan_payments')
       .insert(paymentRecords)
       .select()
 
     if (error) {
-      console.error('Error creating payment records:', error)
+      console.error('Supabase error creating payment records:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return false
     }
 
-    console.log(`Created ${data?.length || 0} payment records for loan ${loanId}`)
+    console.log(`Successfully created ${data?.length || 0} payment records for loan ${loanId}`)
     return true
   } catch (err) {
-    console.error('Failed to create payment records:', err)
+    console.error('Exception creating payment records:', err)
     return false
   }
 }
