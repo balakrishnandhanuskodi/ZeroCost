@@ -5,7 +5,8 @@ import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, getLoanPaymentHistory, LoanRecord, LoanFormInput } from '../lib/loansService'
+import EMIAnalysisDialog from '../components/Loans/EMIAnalysisDialog'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, getLoanPaymentHistory, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
@@ -18,6 +19,9 @@ export default function Loans() {
   const [editingLoan, setEditingLoan] = useState<LoanRecord | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [showEMIAnalysis, setShowEMIAnalysis] = useState(false)
+  const [pendingFormData, setPendingFormData] = useState<LoanFormInput | null>(null)
+  const [pendingSchedule, setPendingSchedule] = useState<PaymentScheduleItem[]>([])
 
   const loadLoans = async () => {
     if (!user) return
@@ -42,18 +46,29 @@ export default function Loans() {
     }
   }
 
-  const handleAddLoan = async (formData: LoanFormInput) => {
-    if (!user) return
+  const handleAddLoan = (formData: LoanFormInput) => {
+    // Show EMI analysis dialog before creating loan
+    setPendingFormData(formData)
+    setShowEMIAnalysis(true)
+  }
+
+  const handleEMIAnalysisConfirm = async (schedule: PaymentScheduleItem[]) => {
+    if (!user || !pendingFormData) return
 
     setIsSubmitting(true)
     setError(null)
 
     try {
-      const newLoan = await createLoan(user.id, formData)
+      const newLoan = await createLoan(user.id, pendingFormData)
       if (newLoan) {
+        // TODO: Generate payment records in loan_payments table
+        // For now, just add the loan
         setLoans([newLoan, ...loans])
         setShowForm(false)
-        setSuccess('Loan added successfully')
+        setShowEMIAnalysis(false)
+        setPendingFormData(null)
+        setPendingSchedule([])
+        setSuccess('Loan added successfully! Payment schedule generated.')
         setTimeout(() => setSuccess(null), 3000)
       }
     } catch (err) {
@@ -61,6 +76,12 @@ export default function Loans() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleEMIAnalysisCancel = () => {
+    setShowEMIAnalysis(false)
+    setPendingFormData(null)
+    setPendingSchedule([])
   }
 
   const handleEditLoan = async (formData: LoanFormInput) => {
@@ -155,6 +176,7 @@ export default function Loans() {
                 editingLoan
                   ? {
                       lender_name: editingLoan.lender_name,
+                      loan_type: editingLoan.loan_type,
                       principal: editingLoan.principal.toString(),
                       current_balance: editingLoan.current_balance.toString(),
                       interest_rate: editingLoan.interest_rate.toString(),
@@ -164,6 +186,10 @@ export default function Loans() {
                       start_date: editingLoan.start_date,
                       end_date: editingLoan.end_date || '',
                       monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
+                      first_emi_date: editingLoan.first_emi_date,
+                      first_emi_amount: editingLoan.first_emi_amount.toString(),
+                      emis_paid_count: editingLoan.emis_paid_count.toString(),
+                      last_payment_date: editingLoan.last_payment_date || '',
                       status: editingLoan.status,
                       notes: editingLoan.notes || '',
                     }
@@ -373,6 +399,7 @@ export default function Loans() {
                 editingLoan
                   ? {
                       lender_name: editingLoan.lender_name,
+                      loan_type: editingLoan.loan_type,
                       principal: editingLoan.principal.toString(),
                       current_balance: editingLoan.current_balance.toString(),
                       interest_rate: editingLoan.interest_rate.toString(),
@@ -382,6 +409,10 @@ export default function Loans() {
                       start_date: editingLoan.start_date,
                       end_date: editingLoan.end_date || '',
                       monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
+                      first_emi_date: editingLoan.first_emi_date,
+                      first_emi_amount: editingLoan.first_emi_amount.toString(),
+                      emis_paid_count: editingLoan.emis_paid_count.toString(),
+                      last_payment_date: editingLoan.last_payment_date || '',
                       status: editingLoan.status,
                       notes: editingLoan.notes || '',
                     }
@@ -391,6 +422,22 @@ export default function Loans() {
             />
           </div>
         </div>
+      )}
+
+      {/* EMI Analysis Dialog */}
+      {showEMIAnalysis && pendingFormData && (
+        <EMIAnalysisDialog
+          principal={parseFloat(pendingFormData.principal)}
+          interestRate={parseFloat(pendingFormData.interest_rate)}
+          tenure={parseInt(pendingFormData.tenure)}
+          tenureUnit={pendingFormData.tenure_unit}
+          firstEMIDate={pendingFormData.first_emi_date}
+          firstEMIAmount={parseFloat(pendingFormData.first_emi_amount)}
+          currentBalance={parseFloat(pendingFormData.current_balance)}
+          emirsPaidCount={pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0}
+          onConfirm={handleEMIAnalysisConfirm}
+          onCancel={handleEMIAnalysisCancel}
+        />
       )}
     </div>
   )
