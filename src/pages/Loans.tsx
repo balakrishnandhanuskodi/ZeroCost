@@ -17,64 +17,6 @@ export default function Loans() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  // If form is open, show full page form instead of modal
-  if (showForm) {
-    return (
-      <div className="p-6 pb-20 md:pb-8 animate-fade-in">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-6">
-            <button
-              onClick={handleCloseForm}
-              className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] mb-4"
-            >
-              <ChevronLeft size={16} />
-              Back to Loans
-            </button>
-            <h1 className="font-display font-700 text-2xl text-[var(--foreground)]">
-              {editingLoan ? 'Edit Loan' : 'Add New Loan'}
-            </h1>
-            <p className="text-xs text-[var(--muted-foreground)] mt-1">
-              {editingLoan ? 'Update your loan details' : 'Add a new loan to track'}
-            </p>
-          </div>
-
-          {error && <Alert type="error" title="Error">{error}</Alert>}
-
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 shadow-sm">
-            <LoanForm
-              onSubmit={editingLoan ? handleEditLoan : handleAddLoan}
-              onCancel={handleCloseForm}
-              initialData={
-                editingLoan
-                  ? {
-                      lender_name: editingLoan.lender_name,
-                      principal: editingLoan.principal.toString(),
-                      current_balance: editingLoan.current_balance.toString(),
-                      interest_rate: editingLoan.interest_rate.toString(),
-                      interest_type: editingLoan.interest_type,
-                      tenure: editingLoan.tenure.toString(),
-                      tenure_unit: editingLoan.tenure_unit,
-                      start_date: editingLoan.start_date,
-                      end_date: editingLoan.end_date || '',
-                      monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
-                      status: editingLoan.status,
-                      notes: editingLoan.notes || '',
-                    }
-                  : undefined
-              }
-              isLoading={isSubmitting}
-            />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Load loans on mount
-  useEffect(() => {
-    loadLoans()
-  }, [user])
-
   const loadLoans = async () => {
     if (!user) return
     setIsLoading(true)
@@ -166,6 +108,64 @@ export default function Loans() {
   const handleCloseForm = () => {
     setShowForm(false)
     setEditingLoan(null)
+  }
+
+  // Load loans on mount
+  useEffect(() => {
+    loadLoans()
+  }, [user])
+
+  // If form is open, show full page form instead of modal
+  if (showForm) {
+    return (
+      <div className="p-6 pb-20 md:pb-8 animate-fade-in">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-6">
+            <button
+              onClick={handleCloseForm}
+              className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] mb-4"
+            >
+              <ChevronLeft size={16} />
+              Back to Loans
+            </button>
+            <h1 className="font-display font-700 text-2xl text-[var(--foreground)]">
+              {editingLoan ? 'Edit Loan' : 'Add New Loan'}
+            </h1>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">
+              {editingLoan ? 'Update your loan details' : 'Add a new loan to track'}
+            </p>
+          </div>
+
+          {error && <Alert type="error" title="Error">{error}</Alert>}
+
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 shadow-sm">
+            <LoanForm
+              onSubmit={editingLoan ? handleEditLoan : handleAddLoan}
+              onCancel={handleCloseForm}
+              initialData={
+                editingLoan
+                  ? {
+                      lender_name: editingLoan.lender_name,
+                      principal: editingLoan.principal.toString(),
+                      current_balance: editingLoan.current_balance.toString(),
+                      interest_rate: editingLoan.interest_rate.toString(),
+                      interest_type: editingLoan.interest_type,
+                      tenure: editingLoan.tenure.toString(),
+                      tenure_unit: editingLoan.tenure_unit,
+                      start_date: editingLoan.start_date,
+                      end_date: editingLoan.end_date || '',
+                      monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
+                      status: editingLoan.status,
+                      notes: editingLoan.notes || '',
+                    }
+                  : undefined
+              }
+              isLoading={isSubmitting}
+            />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Calculate totals
