@@ -74,11 +74,15 @@ export default function Loans() {
           pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0
         )
 
-        await createLoanPaymentSchedule(user.id, newLoan.id, paymentSchedule)
+        const scheduleCreated = await createLoanPaymentSchedule(user.id, newLoan.id, paymentSchedule)
+        if (!scheduleCreated) {
+          console.warn('Payment schedule creation returned false, but continuing with loan creation')
+        }
 
         // Load payment history for the new loan
         const newLoanHistory = await getLoanPaymentHistory(newLoan.id)
         setPaymentHistory(prev => ({ ...prev, [newLoan.id]: newLoanHistory }))
+        console.log(`Payment history loaded for loan ${newLoan.id}:`, newLoanHistory)
 
         setLoans([newLoan, ...loans])
         setShowForm(false)

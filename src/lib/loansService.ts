@@ -336,21 +336,21 @@ export async function createLoanPaymentSchedule(userId: string, loanId: string, 
       total_payment: item.total_payment,
       balance_after_payment: item.balance_after_payment,
       status: item.status,
-      payment_date: item.payment_date || null,
+      payment_date: item.payment_date ? item.payment_date : null,
       skip_penalty: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     }))
 
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('loan_payments')
       .insert(paymentRecords)
+      .select()
 
     if (error) {
       console.error('Error creating payment records:', error)
       return false
     }
 
+    console.log(`Created ${data?.length || 0} payment records for loan ${loanId}`)
     return true
   } catch (err) {
     console.error('Failed to create payment records:', err)
