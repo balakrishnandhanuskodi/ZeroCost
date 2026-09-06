@@ -105,7 +105,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             onChange={handleChange}
             placeholder="0"
             min="0"
-            step="1000"
+            step="1"
             className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
           {errors.principal && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.principal}</p>}
@@ -119,7 +119,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             onChange={handleChange}
             placeholder="0"
             min="0"
-            step="1000"
+            step="1"
             className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
           {errors.current_balance && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.current_balance}</p>}

@@ -262,12 +262,12 @@ export default function Loans() {
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1 mb-0.5">
-                      <h3 className="font-display font-700 text-[11px] text-[var(--foreground)] truncate">{loan.lender_name}</h3>
-                      <span className={`text-[8px] font-semibold px-0.5 py-0.5 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
+                      <h3 className="font-display font-700 text-[15px] text-[var(--foreground)] truncate">{loan.lender_name}</h3>
+                      <span className={`text-[11px] font-semibold px-0.5 py-0.5 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
                         {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
                       </span>
                     </div>
-                    <p className="text-[8px] text-[var(--muted-foreground)]">
+                    <p className="text-[11px] text-[var(--muted-foreground)]">
                       {new Date(loan.start_date).toLocaleDateString()}
                     </p>
                   </div>
@@ -277,7 +277,7 @@ export default function Loans() {
                       className="p-1 text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded transition-colors"
                       title="Edit"
                     >
-                      <Edit2 size={11} />
+                      <Edit2 size={15} />
                     </button>
                     <button
                       onClick={() => handleDeleteLoan(loan.id)}
@@ -285,7 +285,7 @@ export default function Loans() {
                       className="p-1 text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded transition-colors disabled:opacity-50"
                       title="Delete"
                     >
-                      <Trash2 size={11} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
@@ -293,20 +293,20 @@ export default function Loans() {
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-1.5">
                     <div>
-                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Principal</p>
-                      <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
+                      <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Principal</p>
+                      <p className="text-[12px] font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
                     </div>
                     <div>
-                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Balance</p>
-                      <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
+                      <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Balance</p>
+                      <p className="text-[12px] font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
                     </div>
                     <div>
-                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Rate p.a.</p>
-                      <p className="text-[9px] font-semibold text-[var(--foreground)]">{loan.interest_rate.toFixed(2)}%</p>
+                      <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Rate p.a.</p>
+                      <p className="text-[12px] font-semibold text-[var(--foreground)]">{loan.interest_rate.toFixed(2)}%</p>
                     </div>
                     <div>
-                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Monthly EMI</p>
-                      <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
+                      <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Monthly EMI</p>
+                      <p className="text-[12px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
                     </div>
                   </div>
 
