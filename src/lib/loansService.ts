@@ -43,6 +43,7 @@ export interface LoanFormInput {
   start_date: string
   end_date?: string
   monthly_payment_date?: string
+  emi_amount: string
   first_emi_date: string
   first_emi_amount: string
   emis_paid_count?: string
@@ -85,9 +86,6 @@ export function analyzeFirstEMI(principal: number, rate: number, tenure: number,
 
 // Convert form data to database format
 function formatLoanData(data: LoanFormInput) {
-  const tenureMonths = data.tenure_unit === 'years' ? parseInt(data.tenure) * 12 : parseInt(data.tenure)
-  const emiAmount = calculateEMI(parseFloat(data.principal), parseFloat(data.interest_rate), tenureMonths)
-
   return {
     lender_name: data.lender_name,
     loan_type: data.loan_type || 'Other',
@@ -100,7 +98,7 @@ function formatLoanData(data: LoanFormInput) {
     start_date: data.start_date,
     end_date: data.end_date || null,
     monthly_payment_date: data.monthly_payment_date ? parseInt(data.monthly_payment_date) : null,
-    emi_amount: emiAmount,
+    emi_amount: parseFloat(data.emi_amount),
     first_emi_date: data.first_emi_date,
     first_emi_amount: parseFloat(data.first_emi_amount),
     emis_paid_count: data.emis_paid_count ? parseInt(data.emis_paid_count) : 0,
@@ -158,11 +156,11 @@ export function generatePaymentSchedule(
   rate: number,
   tenureMonths: number,
   firstEMIDate: string,
+  emiAmount: number,
   firstEMIAmount: number,
   emirsPaidCount: number = 0
 ): PaymentScheduleItem[] {
   const monthlyRate = rate / 100 / 12
-  const standardEMI = calculateEMI(principal, rate, tenureMonths)
   const schedule: PaymentScheduleItem[] = []
 
   let balance = principal
@@ -176,15 +174,15 @@ export function generatePaymentSchedule(
     const interestAmount = Math.round(balance * monthlyRate * 100) / 100
     let principalAmount: number
     let totalPayment: number
-    const emiAmount = Math.round(standardEMI * 100) / 100
+    const standardEMI = Math.round(emiAmount * 100) / 100
 
     if (i === 1) {
-      // First payment - may include stub interest, so total_payment = firstEMIAmount
+      // First payment - use firstEMIAmount (may include stub interest)
       totalPayment = firstEMIAmount
       principalAmount = totalPayment - interestAmount
     } else {
-      // Subsequent payments - use standard EMI
-      totalPayment = emiAmount
+      // Subsequent payments - use standard EMI entered by user
+      totalPayment = standardEMI
       principalAmount = totalPayment - interestAmount
     }
 
@@ -199,7 +197,7 @@ export function generatePaymentSchedule(
       due_date: dueDate.toISOString().split('T')[0],
       principal_amount: Math.round(principalAmount * 100) / 100,
       interest_amount: Math.round(interestAmount * 100) / 100,
-      emi_amount: Math.round(emiAmount * 100) / 100,
+      emi_amount: standardEMI,
       total_payment: Math.round(totalPayment * 100) / 100,
       balance_after_payment: Math.round(balance * 100) / 100,
       status: i <= emirsPaidCount ? 'paid' : 'pending'

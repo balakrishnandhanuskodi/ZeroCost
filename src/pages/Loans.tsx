@@ -70,6 +70,7 @@ export default function Loans() {
           parseFloat(pendingFormData.interest_rate),
           tenureMonths,
           pendingFormData.first_emi_date,
+          parseFloat(pendingFormData.emi_amount),
           parseFloat(pendingFormData.first_emi_amount),
           pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0
         )
@@ -128,6 +129,7 @@ export default function Loans() {
           parseFloat(formData.interest_rate),
           tenureMonths,
           formData.first_emi_date,
+          parseFloat(formData.emi_amount),
           parseFloat(formData.first_emi_amount),
           formData.emis_paid_count ? parseInt(formData.emis_paid_count) : 0
         )

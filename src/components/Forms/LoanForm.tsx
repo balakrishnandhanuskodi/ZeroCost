@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import Button from '../UI/Button'
-import { LoanFormInput, LoanType, calculateEMI } from '../../lib/loansService'
+import { LoanFormInput, LoanType } from '../../lib/loansService'
 
 interface LoanFormProps {
   onSubmit: (data: LoanFormInput) => Promise<void>
@@ -21,6 +21,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       tenure: '',
       tenure_unit: 'months',
       start_date: '',
+      emi_amount: '',
       first_emi_date: '',
       first_emi_amount: '',
       status: 'active',
@@ -28,19 +29,6 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   )
   const [errors, setErrors] = useState<Partial<LoanFormInput>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Calculate standard EMI for helper display
-  const standardEMI = useMemo(() => {
-    const principal = parseFloat(formData.principal)
-    const rate = parseFloat(formData.interest_rate)
-    const tenure = parseInt(formData.tenure)
-    const tenureUnit = formData.tenure_unit
-
-    if (!principal || !rate || !tenure) return null
-
-    const tenureMonths = tenureUnit === 'years' ? tenure * 12 : tenure
-    return Math.round(calculateEMI(principal, rate, tenureMonths) * 100) / 100
-  }, [formData.principal, formData.interest_rate, formData.tenure, formData.tenure_unit])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoanFormInput> = {}
@@ -51,6 +39,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
     if (!formData.interest_rate || parseFloat(formData.interest_rate) < 0) newErrors.interest_rate = 'Valid interest rate required'
     if (!formData.tenure || parseInt(formData.tenure) <= 0) newErrors.tenure = 'Valid tenure required'
     if (!formData.start_date) newErrors.start_date = 'Start date is required'
+    if (!formData.emi_amount || parseFloat(formData.emi_amount) <= 0) newErrors.emi_amount = 'Valid EMI amount required'
     if (!formData.first_emi_date) newErrors.first_emi_date = 'First EMI date is required'
     if (!formData.first_emi_amount || parseFloat(formData.first_emi_amount) <= 0) newErrors.first_emi_amount = 'Valid first EMI amount required'
 
@@ -229,15 +218,29 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
         </div>
       </div>
 
-      {/* First EMI Date & Amount */}
+      {/* EMI Amount & First EMI Details */}
       <div>
         <div className="mb-2 p-2 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
           <p className="text-[11px] text-[var(--muted-foreground)]">
-            <span className="font-semibold text-[var(--primary)]">📌 First EMI Details</span><br/>
-            These determine your payment schedule. If your first payment included pre-EMI/stub interest, please enter the full amount here.
+            <span className="font-semibold text-[var(--primary)]">📌 EMI & First Payment Details</span><br/>
+            Enter the standard EMI for all 60 payments. If your first payment differs (stub interest), enter that amount separately.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">EMI Amount (₹) *</label>
+            <input
+              type="number"
+              name="emi_amount"
+              value={formData.emi_amount}
+              onChange={handleChange}
+              placeholder="32352"
+              min="0"
+              step="0.01"
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+            {errors.emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.emi_amount}</p>}
+          </div>
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First EMI Date *</label>
             <input
@@ -249,6 +252,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             />
             {errors.first_emi_date && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_date}</p>}
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-2">
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First EMI Amount (₹) *</label>
             <input
@@ -263,17 +268,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             />
             {errors.first_emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_amount}</p>}
           </div>
-        </div>
-
-        {/* Standard EMI Helper */}
-        {standardEMI && (
-          <div className="mt-2 p-2 bg-[var(--secondary-soft)] rounded-lg border border-[var(--secondary)]">
-            <p className="text-[11px] text-[var(--muted-foreground)]">
-              <span className="font-medium text-[var(--secondary)]">💡 Calculated Standard EMI: ₹{standardEMI.toLocaleString('en-IN')}</span><br/>
-              <span className="text-[10px]">If your First EMI differs, it likely includes stub/pre-EMI interest. Remaining 59 payments will be ₹{standardEMI.toLocaleString('en-IN')} each.</span>
-            </p>
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5 text-[var(--muted-foreground)]">Stub/Difference (₹)</label>
+            <input
+              type="text"
+              disabled
+              value={formData.first_emi_amount && formData.emi_amount ? `₹${(parseFloat(formData.first_emi_amount) - parseFloat(formData.emi_amount)).toFixed(2)}` : '—'}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] opacity-75"
+            />
           </div>
-        )}
+        </div>
       </div>
 
       {/* Payment Date & Status */}
