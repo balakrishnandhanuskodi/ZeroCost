@@ -24,6 +24,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       emi_amount: '',
       first_emi_date: '',
       first_emi_amount: '',
+      first_payment_interest: '',
       status: 'active',
     }
   )
@@ -269,7 +270,31 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             {errors.first_emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_amount}</p>}
           </div>
           <div>
-            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5 text-[var(--muted-foreground)]">Stub/Difference (₹)</label>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First Payment Interest (₹)</label>
+            <input
+              type="number"
+              name="first_payment_interest"
+              value={formData.first_payment_interest || ''}
+              onChange={handleChange}
+              placeholder="From schedule"
+              min="0"
+              step="0.01"
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5 text-[var(--muted-foreground)]">First Payment Principal (₹)</label>
+            <input
+              type="text"
+              disabled
+              value={formData.first_emi_amount && formData.first_payment_interest ? `₹${(parseFloat(formData.first_emi_amount) - parseFloat(formData.first_payment_interest)).toFixed(2)}` : '—'}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] opacity-75"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5 text-[var(--muted-foreground)]">EMI Difference (₹)</label>
             <input
               type="text"
               disabled

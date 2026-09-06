@@ -38,7 +38,7 @@ export default function Loans() {
       const breakdown: Record<string, { principalPaid: number; interestPaid: number; totalPaid: number }> = {}
       for (const loan of data) {
         history[loan.id] = await getLoanPaymentHistory(loan.id)
-        breakdown[loan.id] = await getPaidEMIBreakdown(loan.id)
+        breakdown[loan.id] = await getPaidEMIBreakdown(loan.id, loan)
       }
       setPaymentHistory(history)
       setPaidEMIBreakdown(breakdown)
@@ -92,7 +92,7 @@ export default function Loans() {
 
         // Load payment history and breakdown for the new loan
         const newLoanHistory = await getLoanPaymentHistory(newLoan.id)
-        const newLoanBreakdown = await getPaidEMIBreakdown(newLoan.id)
+        const newLoanBreakdown = await getPaidEMIBreakdown(newLoan.id, newLoan)
         console.log(`Payment history for loan ${newLoan.id}:`, newLoanHistory)
         setPaymentHistory(prev => ({ ...prev, [newLoan.id]: newLoanHistory }))
         setPaidEMIBreakdown(prev => ({ ...prev, [newLoan.id]: newLoanBreakdown }))
@@ -144,7 +144,7 @@ export default function Loans() {
 
         // Reload payment history and breakdown for the updated loan
         const updatedHistory = await getLoanPaymentHistory(editingLoan.id)
-        const updatedBreakdown = await getPaidEMIBreakdown(editingLoan.id)
+        const updatedBreakdown = await getPaidEMIBreakdown(editingLoan.id, updated)
         setPaymentHistory(prev => ({ ...prev, [editingLoan.id]: updatedHistory }))
         setPaidEMIBreakdown(prev => ({ ...prev, [editingLoan.id]: updatedBreakdown }))
 
@@ -241,8 +241,10 @@ export default function Loans() {
                       start_date: editingLoan.start_date,
                       end_date: editingLoan.end_date || '',
                       monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
+                      emi_amount: editingLoan.emi_amount?.toString() || '',
                       first_emi_date: editingLoan.first_emi_date,
                       first_emi_amount: editingLoan.first_emi_amount.toString(),
+                      first_payment_interest: editingLoan.first_payment_interest?.toString() || '',
                       emis_paid_count: editingLoan.emis_paid_count.toString(),
                       last_payment_date: editingLoan.last_payment_date || '',
                       status: editingLoan.status,
@@ -480,8 +482,10 @@ export default function Loans() {
                       start_date: editingLoan.start_date,
                       end_date: editingLoan.end_date || '',
                       monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
+                      emi_amount: editingLoan.emi_amount?.toString() || '',
                       first_emi_date: editingLoan.first_emi_date,
                       first_emi_amount: editingLoan.first_emi_amount.toString(),
+                      first_payment_interest: editingLoan.first_payment_interest?.toString() || '',
                       emis_paid_count: editingLoan.emis_paid_count.toString(),
                       last_payment_date: editingLoan.last_payment_date || '',
                       status: editingLoan.status,
