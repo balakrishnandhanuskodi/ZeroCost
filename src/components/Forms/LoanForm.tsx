@@ -129,16 +129,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       {/* Interest Rate & Type */}
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Rate (%)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Rate (%) p.a.</label>
           <input
             type="number"
             name="interest_rate"
             value={formData.interest_rate}
             onChange={handleChange}
-            placeholder="7.5"
+            placeholder="10.65"
             min="0"
             max="100"
-            step="0.1"
+            step="0.01"
             className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
           {errors.interest_rate && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.interest_rate}</p>}
