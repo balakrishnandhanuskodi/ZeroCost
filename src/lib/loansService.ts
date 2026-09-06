@@ -22,6 +22,8 @@ export interface LoanRecord {
   emi_amount: number | null
   first_emi_date: string
   first_emi_amount: number
+  first_payment_interest: number | null
+  first_payment_principal: number | null
   emis_paid_count: number
   last_payment_date: string | null
   status: LoanStatus
@@ -46,6 +48,7 @@ export interface LoanFormInput {
   emi_amount: string
   first_emi_date: string
   first_emi_amount: string
+  first_payment_interest?: string
   emis_paid_count?: string
   last_payment_date?: string
   status: LoanStatus
@@ -86,6 +89,10 @@ export function analyzeFirstEMI(principal: number, rate: number, tenure: number,
 
 // Convert form data to database format
 function formatLoanData(data: LoanFormInput) {
+  const firstPaymentInterest = data.first_payment_interest ? parseFloat(data.first_payment_interest) : 0
+  const firstEMIAmount = parseFloat(data.first_emi_amount)
+  const firstPaymentPrincipal = firstPaymentInterest > 0 ? firstEMIAmount - firstPaymentInterest : 0
+
   return {
     lender_name: data.lender_name,
     loan_type: data.loan_type || 'Other',
@@ -100,7 +107,9 @@ function formatLoanData(data: LoanFormInput) {
     monthly_payment_date: data.monthly_payment_date ? parseInt(data.monthly_payment_date) : null,
     emi_amount: parseFloat(data.emi_amount),
     first_emi_date: data.first_emi_date,
-    first_emi_amount: parseFloat(data.first_emi_amount),
+    first_emi_amount: firstEMIAmount,
+    first_payment_interest: firstPaymentInterest || null,
+    first_payment_principal: firstPaymentPrincipal || null,
     emis_paid_count: data.emis_paid_count ? parseInt(data.emis_paid_count) : 0,
     last_payment_date: data.last_payment_date || null,
     status: data.status,
@@ -403,7 +412,7 @@ export async function getLoanPaymentHistory(loanId: string): Promise<{ count: nu
 }
 
 // Get principal and interest breakdown for paid EMIs
-export async function getPaidEMIBreakdown(loanId: string): Promise<{ principalPaid: number; interestPaid: number; totalPaid: number }> {
+export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecord): Promise<{ principalPaid: number; interestPaid: number; totalPaid: number }> {
   if (!isSupabaseConfigured || !supabase) {
     return { principalPaid: 0, interestPaid: 0, totalPaid: 0 }
   }
@@ -411,7 +420,7 @@ export async function getPaidEMIBreakdown(loanId: string): Promise<{ principalPa
   try {
     const { data, error } = await supabase
       .from('loan_payments')
-      .select('principal_amount, interest_amount, total_payment')
+      .select('payment_number, principal_amount, interest_amount, total_payment')
       .eq('loan_id', loanId)
       .eq('status', 'paid')
       .order('payment_number', { ascending: true })
@@ -422,9 +431,24 @@ export async function getPaidEMIBreakdown(loanId: string): Promise<{ principalPa
     }
 
     const payments = data || []
-    const principalPaid = payments.reduce((sum, p) => sum + (p.principal_amount || 0), 0)
-    const interestPaid = payments.reduce((sum, p) => sum + (p.interest_amount || 0), 0)
+    let principalPaid = 0
+    let interestPaid = 0
     const totalPaid = payments.reduce((sum, p) => sum + (p.total_payment || 0), 0)
+
+    // Use official first payment breakdown if available
+    const hasOfficialBreakdown = loanRecord && loanRecord.first_payment_interest && loanRecord.first_payment_principal
+
+    for (const payment of payments) {
+      if (payment.payment_number === 1 && hasOfficialBreakdown) {
+        // Use official breakdown for payment 1
+        principalPaid += loanRecord!.first_payment_principal || 0
+        interestPaid += loanRecord!.first_payment_interest || 0
+      } else {
+        // Use calculated values for other payments
+        principalPaid += payment.principal_amount || 0
+        interestPaid += payment.interest_amount || 0
+      }
+    }
 
     return { principalPaid, interestPaid, totalPaid }
   } catch (err) {
