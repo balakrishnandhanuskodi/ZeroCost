@@ -265,16 +265,19 @@ export default function Loans() {
           </div>
         </div>
       ) : loans.length === 0 ? (
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8 text-center">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 text-center">
           <Briefcase size={32} className="mx-auto mb-2 text-[var(--muted-foreground)]" />
           <h3 className="font-display font-700 text-sm text-[var(--foreground)] mb-1">No loans yet</h3>
-          <p className="text-xs text-[var(--muted-foreground)] mb-4">
+          <p className="text-xs text-[var(--muted-foreground)] mb-3">
             Add your first loan to get started.
           </p>
-          <Button variant="primary" onClick={() => handleOpenForm()}>
-            <Plus size={14} className="mr-1" />
+          <button
+            onClick={() => handleOpenForm()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[var(--primary)] bg-[var(--primary-soft)] hover:bg-[var(--primary)]/10 rounded-lg transition-colors border border-[var(--primary)]"
+          >
+            <Plus size={14} />
             Add Loan
-          </Button>
+          </button>
         </div>
       ) : (
         /* Loans Grid */
