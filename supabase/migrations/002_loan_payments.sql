@@ -30,12 +30,12 @@ CREATE TABLE IF NOT EXISTS loan_payments (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_loan_payments_user_id ON loan_payments(user_id);
-CREATE INDEX idx_loan_payments_loan_id ON loan_payments(loan_id);
-CREATE INDEX idx_loan_payments_status ON loan_payments(status);
-CREATE INDEX idx_loan_payments_due_date ON loan_payments(due_date);
-CREATE INDEX idx_loan_payments_payment_month ON loan_payments(payment_month);
-CREATE UNIQUE INDEX idx_loan_payments_unique ON loan_payments(loan_id, payment_number);
+CREATE INDEX IF NOT EXISTS idx_loan_payments_user_id ON loan_payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_loan_payments_loan_id ON loan_payments(loan_id);
+CREATE INDEX IF NOT EXISTS idx_loan_payments_status ON loan_payments(status);
+CREATE INDEX IF NOT EXISTS idx_loan_payments_due_date ON loan_payments(due_date);
+CREATE INDEX IF NOT EXISTS idx_loan_payments_payment_month ON loan_payments(payment_month);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_loan_payments_unique ON loan_payments(loan_id, payment_number);
 
 -- Enable RLS
 ALTER TABLE loan_payments ENABLE ROW LEVEL SECURITY;

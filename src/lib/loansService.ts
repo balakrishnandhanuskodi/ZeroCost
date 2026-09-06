@@ -318,6 +318,59 @@ export async function updateLoan(loanId: string, data: LoanFormInput): Promise<L
   }
 }
 
+// Create payment schedule records in loan_payments table
+export async function createLoanPaymentSchedule(userId: string, loanId: string, schedule: PaymentScheduleItem[]): Promise<boolean> {
+  console.log('createLoanPaymentSchedule called:', { isSupabaseConfigured, hasSupabase: !!supabase, scheduleLength: schedule.length })
+
+  if (!isSupabaseConfigured || !supabase) {
+    console.warn('⚠️ Supabase not configured, skipping payment record creation', { isSupabaseConfigured, supabase })
+    return true // Skip for localStorage fallback
+  }
+
+  try {
+    console.log(`Preparing ${schedule.length} payment records for loan ${loanId}`)
+    console.log('User ID:', userId)
+
+    const paymentRecords = schedule.map(item => ({
+      user_id: userId,
+      loan_id: loanId,
+      payment_number: item.payment_number,
+      payment_month: item.payment_month,
+      due_date: item.due_date,
+      principal_amount: item.principal_amount,
+      interest_amount: item.interest_amount,
+      total_payment: item.total_payment,
+      balance_after_payment: item.balance_after_payment,
+      status: item.status,
+      payment_date: item.payment_date ? item.payment_date : null,
+      skip_penalty: 0,
+    }))
+
+    console.log('First record to insert:', paymentRecords[0])
+
+    const { error, data } = await supabase
+      .from('loan_payments')
+      .insert(paymentRecords)
+      .select()
+
+    if (error) {
+      console.error('Supabase error creating payment records:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return false
+    }
+
+    console.log(`Successfully created ${data?.length || 0} payment records for loan ${loanId}`)
+    return true
+  } catch (err) {
+    console.error('Exception creating payment records:', err)
+    return false
+  }
+}
+
 // Get payment history for a loan
 export async function getLoanPaymentHistory(loanId: string): Promise<{ count: number; totalAmount: number }> {
   if (!isSupabaseConfigured || !supabase) {

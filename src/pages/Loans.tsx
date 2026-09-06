@@ -6,7 +6,7 @@ import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
 import EMIAnalysisDialog from '../components/Loans/EMIAnalysisDialog'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, getLoanPaymentHistory, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, createLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
@@ -62,8 +62,34 @@ export default function Loans() {
     try {
       const newLoan = await createLoan(user.id, pendingFormData)
       if (newLoan) {
-        // TODO: Generate payment records in loan_payments table
-        // For now, just add the loan
+        // Generate and save payment records
+        const tenureMonths = pendingFormData.tenure_unit === 'years' ? parseInt(pendingFormData.tenure) * 12 : parseInt(pendingFormData.tenure)
+        const paymentSchedule = generatePaymentSchedule(
+          newLoan.id,
+          parseFloat(pendingFormData.principal),
+          parseFloat(pendingFormData.interest_rate),
+          tenureMonths,
+          pendingFormData.first_emi_date,
+          parseFloat(pendingFormData.first_emi_amount),
+          pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0
+        )
+
+        console.log(`Creating ${paymentSchedule.length} payment records for loan ${newLoan.id}`)
+        console.log('First payment record:', paymentSchedule[0])
+
+        const scheduleCreated = await createLoanPaymentSchedule(user.id, newLoan.id, paymentSchedule)
+        console.log('Schedule creation result:', scheduleCreated)
+
+        if (!scheduleCreated) {
+          console.warn('Payment schedule creation failed')
+          setError('Warning: Payment schedule could not be created. Please check browser console.')
+        }
+
+        // Load payment history for the new loan
+        const newLoanHistory = await getLoanPaymentHistory(newLoan.id)
+        console.log(`Payment history for loan ${newLoan.id}:`, newLoanHistory)
+        setPaymentHistory(prev => ({ ...prev, [newLoan.id]: newLoanHistory }))
+
         setLoans([newLoan, ...loans])
         setShowForm(false)
         setShowEMIAnalysis(false)

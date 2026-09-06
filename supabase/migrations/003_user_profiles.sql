@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 );
 
 -- Create indexes
-CREATE INDEX idx_user_profiles_email ON user_profiles(email);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_email ON user_profiles(email);
 
 -- Enable RLS
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
