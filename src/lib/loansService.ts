@@ -400,6 +400,63 @@ export async function getLoanPaymentHistory(loanId: string): Promise<{ count: nu
   }
 }
 
+// Update payment schedule records (deletes old ones and creates new ones)
+export async function updateLoanPaymentSchedule(userId: string, loanId: string, schedule: PaymentScheduleItem[]): Promise<boolean> {
+  if (!isSupabaseConfigured || !supabase) {
+    console.log('Supabase not configured, skipping payment record update')
+    return true
+  }
+
+  try {
+    console.log(`Updating payment schedule for loan ${loanId}: deleting old records and creating ${schedule.length} new ones`)
+
+    // First, delete all existing payment records for this loan
+    const { error: deleteError } = await supabase
+      .from('loan_payments')
+      .delete()
+      .eq('loan_id', loanId)
+
+    if (deleteError) {
+      console.error('Error deleting old payment records:', deleteError)
+      return false
+    }
+
+    console.log(`Deleted existing payment records for loan ${loanId}`)
+
+    // Then insert new payment records
+    const paymentRecords = schedule.map(item => ({
+      user_id: userId,
+      loan_id: loanId,
+      payment_number: item.payment_number,
+      payment_month: item.payment_month,
+      due_date: item.due_date,
+      principal_amount: item.principal_amount,
+      interest_amount: item.interest_amount,
+      total_payment: item.total_payment,
+      balance_after_payment: item.balance_after_payment,
+      status: item.status,
+      payment_date: item.payment_date ? item.payment_date : null,
+      skip_penalty: 0,
+    }))
+
+    const { error: insertError, data } = await supabase
+      .from('loan_payments')
+      .insert(paymentRecords)
+      .select()
+
+    if (insertError) {
+      console.error('Error creating new payment records:', insertError)
+      return false
+    }
+
+    console.log(`Successfully created ${data?.length || 0} new payment records for loan ${loanId}`)
+    return true
+  } catch (err) {
+    console.error('Exception updating payment records:', err)
+    return false
+  }
+}
+
 // Delete a loan
 export async function deleteLoan(loanId: string): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) {
