@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Edit2, AlertCircle } from 'lucide-react'
+import { Plus, Trash2, Edit2, AlertCircle, Briefcase } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
@@ -168,7 +168,7 @@ export default function Loans() {
         </div>
       ) : loans.length === 0 ? (
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8 text-center">
-          <div className="text-3xl mb-2">📋</div>
+          <Briefcase size={32} className="mx-auto mb-2 text-[var(--muted-foreground)]" />
           <h3 className="font-display font-700 text-sm text-[var(--foreground)] mb-1">No loans yet</h3>
           <p className="text-xs text-[var(--muted-foreground)] mb-4">
             Add your first loan to get started.
@@ -252,8 +252,8 @@ export default function Loans() {
 
       {/* Loan Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end md:items-center justify-center z-50">
-          <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[450px] max-h-[85vh] overflow-y-auto p-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start md:items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[450px] max-h-[95vh] md:max-h-[90vh] overflow-y-auto p-4 shadow-2xl my-2 md:my-0">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display font-700 text-sm text-[var(--foreground)]">
                 {editingLoan ? 'Edit Loan' : 'Add Loan'}
