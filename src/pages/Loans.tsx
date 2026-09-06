@@ -125,13 +125,13 @@ export default function Loans() {
   return (
     <div className="p-6 pb-20 md:pb-8 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-display font-700 text-2xl md:text-3xl text-[var(--foreground)]">Loans</h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-0.5">{loans.length} active loans</p>
+          <h1 className="font-display font-700 text-lg md:text-xl text-[var(--foreground)]">Loans</h1>
+          <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{loans.length} active loans</p>
         </div>
         <Button variant="primary" onClick={() => handleOpenForm()}>
-          <Plus size={16} className="mr-1" />
+          <Plus size={14} className="mr-1" />
           Add Loan
         </Button>
       </div>
@@ -142,16 +142,16 @@ export default function Loans() {
 
       {/* Summary Cards */}
       {loans.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-[var(--primary-soft)] border border-[var(--primary)] rounded-2xl p-6">
-            <div className="text-[var(--muted-foreground)] text-sm font-medium mb-1">Total Outstanding</div>
-            <div className="font-display font-700 text-2xl text-[var(--primary)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <div className="bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg p-4">
+            <div className="text-[var(--muted-foreground)] text-xs font-medium mb-0.5">Outstanding</div>
+            <div className="font-display font-700 text-lg text-[var(--primary)]">
               ₹{totalOutstanding.toLocaleString('en-IN')}
             </div>
           </div>
-          <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-2xl p-6">
-            <div className="text-[var(--muted-foreground)] text-sm font-medium mb-1">Monthly EMI</div>
-            <div className="font-display font-700 text-2xl text-[var(--warning)]">
+          <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg p-4">
+            <div className="text-[var(--muted-foreground)] text-xs font-medium mb-0.5">Monthly EMI</div>
+            <div className="font-display font-700 text-lg text-[var(--warning)]">
               ₹{Math.round(totalEMI).toLocaleString('en-IN')}
             </div>
           </div>
@@ -160,27 +160,27 @@ export default function Loans() {
 
       {/* Empty State */}
       {isLoading ? (
-        <div className="flex items-center justify-center h-64">
+        <div className="flex items-center justify-center h-48">
           <div className="text-center">
-            <div className="w-12 h-12 rounded-full bg-[var(--muted)] mx-auto mb-4 animate-pulse" />
-            <p className="text-[var(--muted-foreground)]">Loading loans...</p>
+            <div className="w-10 h-10 rounded-full bg-[var(--muted)] mx-auto mb-2 animate-pulse" />
+            <p className="text-xs text-[var(--muted-foreground)]">Loading loans...</p>
           </div>
         </div>
       ) : loans.length === 0 ? (
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-12 text-center">
-          <div className="text-4xl mb-3">📋</div>
-          <h3 className="font-display font-700 text-lg text-[var(--foreground)] mb-2">No loans yet</h3>
-          <p className="text-sm text-[var(--muted-foreground)] mb-6">
-            Add your first loan to get started with loan management and track your EMIs.
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8 text-center">
+          <div className="text-3xl mb-2">📋</div>
+          <h3 className="font-display font-700 text-sm text-[var(--foreground)] mb-1">No loans yet</h3>
+          <p className="text-xs text-[var(--muted-foreground)] mb-4">
+            Add your first loan to get started.
           </p>
           <Button variant="primary" onClick={() => handleOpenForm()}>
-            <Plus size={16} className="mr-1" />
-            Add Your First Loan
+            <Plus size={14} className="mr-1" />
+            Add Loan
           </Button>
         </div>
       ) : (
         /* Loans List */
-        <div className="space-y-3">
+        <div className="space-y-2">
           {loans.map(loan => {
             const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
             const emi = loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths)
@@ -193,55 +193,55 @@ export default function Loans() {
             return (
               <div
                 key={loan.id}
-                className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 hover:shadow-lg transition-all"
+                className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3 hover:shadow-lg transition-all"
               >
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-display font-700 text-[var(--foreground)]">{loan.lender_name}</h3>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColors[loan.status]}`}>
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="font-display font-700 text-sm text-[var(--foreground)] truncate">{loan.lender_name}</h3>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
                         {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
                       </span>
                     </div>
-                    <p className="text-xs text-[var(--muted-foreground)]">
-                      Started {new Date(loan.start_date).toLocaleDateString()}
+                    <p className="text-[10px] text-[var(--muted-foreground)]">
+                      {new Date(loan.start_date).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5">
                     <button
                       onClick={() => handleOpenForm(loan)}
-                      className="p-2 text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg transition-colors"
+                      className="p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg transition-colors"
                       title="Edit"
                     >
-                      <Edit2 size={16} />
+                      <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => handleDeleteLoan(loan.id)}
                       disabled={deletingId === loan.id}
-                      className="p-2 text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded-lg transition-colors disabled:opacity-50"
+                      className="p-1.5 text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded-lg transition-colors disabled:opacity-50"
                       title="Delete"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Principal</p>
-                    <p className="font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
+                    <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5">Principal</p>
+                    <p className="text-xs font-semibold text-[var(--foreground)]">₹{(loan.principal / 1000).toFixed(0)}K</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Balance</p>
-                    <p className="font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
+                    <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5">Balance</p>
+                    <p className="text-xs font-semibold text-[var(--foreground)]">₹{(loan.current_balance / 1000).toFixed(0)}K</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Rate p.a.</p>
-                    <p className="font-semibold text-[var(--foreground)]">{loan.interest_rate}%</p>
+                    <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5">Rate</p>
+                    <p className="text-xs font-semibold text-[var(--foreground)]">{loan.interest_rate}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">EMI</p>
-                    <p className="font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
+                    <p className="text-[9px] text-[var(--muted-foreground)] mb-0.5">EMI</p>
+                    <p className="text-xs font-semibold text-[var(--foreground)]">₹{(Math.round(emi) / 1000).toFixed(1)}K</p>
                   </div>
                 </div>
               </div>
@@ -253,14 +253,14 @@ export default function Loans() {
       {/* Loan Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end md:items-center justify-center z-50">
-          <div className="bg-[var(--card)] rounded-t-3xl md:rounded-2xl w-full md:w-[500px] max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display font-700 text-lg text-[var(--foreground)]">
-                {editingLoan ? 'Edit Loan' : 'Add New Loan'}
+          <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[450px] max-h-[85vh] overflow-y-auto p-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display font-700 text-sm text-[var(--foreground)]">
+                {editingLoan ? 'Edit Loan' : 'Add Loan'}
               </h2>
               <button
                 onClick={handleCloseForm}
-                className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-lg"
               >
                 ✕
               </button>

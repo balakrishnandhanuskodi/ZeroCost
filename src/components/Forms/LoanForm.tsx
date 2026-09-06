@@ -61,25 +61,25 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto">
+    <form onSubmit={handleSubmit} className="space-y-2.5 max-h-[80vh] overflow-y-auto">
       {/* Lender Name */}
       <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Lender Name</label>
+        <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Lender Name</label>
         <input
           type="text"
           name="lender_name"
           value={formData.lender_name}
           onChange={handleChange}
-          placeholder="e.g., HDFC Bank, ICICI Bank"
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          placeholder="e.g., HDFC Bank"
+          className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
-        {errors.lender_name && <p className="text-xs text-[var(--danger)] mt-1">{errors.lender_name}</p>}
+        {errors.lender_name && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.lender_name}</p>}
       </div>
 
       {/* Principal & Current Balance */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Principal (₹)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Principal (₹)</label>
           <input
             type="number"
             name="principal"
@@ -88,12 +88,12 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             placeholder="0"
             min="0"
             step="1000"
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
-          {errors.principal && <p className="text-xs text-[var(--danger)] mt-1">{errors.principal}</p>}
+          {errors.principal && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.principal}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Current Balance (₹)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Balance (₹)</label>
           <input
             type="number"
             name="current_balance"
@@ -102,16 +102,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             placeholder="0"
             min="0"
             step="1000"
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
-          {errors.current_balance && <p className="text-xs text-[var(--danger)] mt-1">{errors.current_balance}</p>}
+          {errors.current_balance && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.current_balance}</p>}
         </div>
       </div>
 
       {/* Interest Rate & Type */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Interest Rate (%)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Rate (%)</label>
           <input
             type="number"
             name="interest_rate"
@@ -121,17 +121,17 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             min="0"
             max="100"
             step="0.1"
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
-          {errors.interest_rate && <p className="text-xs text-[var(--danger)] mt-1">{errors.interest_rate}</p>}
+          {errors.interest_rate && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.interest_rate}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Interest Type</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Type</label>
           <select
             name="interest_type"
             value={formData.interest_type}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="fixed">Fixed</option>
             <option value="variable">Variable</option>
@@ -140,9 +140,9 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       </div>
 
       {/* Tenure */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Tenure</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Tenure</label>
           <input
             type="number"
             name="tenure"
@@ -151,17 +151,17 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             placeholder="60"
             min="1"
             step="1"
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
-          {errors.tenure && <p className="text-xs text-[var(--danger)] mt-1">{errors.tenure}</p>}
+          {errors.tenure && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.tenure}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Unit</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Unit</label>
           <select
             name="tenure_unit"
             value={formData.tenure_unit}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="months">Months</option>
             <option value="years">Years</option>
@@ -169,35 +169,35 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
         </div>
       </div>
 
-      {/* Start Date & Payment Date */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Start Date & End Date */}
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Start Date</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Start Date</label>
           <input
             type="date"
             name="start_date"
             value={formData.start_date}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
-          {errors.start_date && <p className="text-xs text-[var(--danger)] mt-1">{errors.start_date}</p>}
+          {errors.start_date && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.start_date}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">End Date (Optional)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">End Date (Opt)</label>
           <input
             type="date"
             name="end_date"
             value={formData.end_date || ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
         </div>
       </div>
 
       {/* Payment Date & Status */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Payment Date (1-31)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Pay Date (1-31)</label>
           <input
             type="number"
             name="monthly_payment_date"
@@ -206,16 +206,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             placeholder="15"
             min="1"
             max="31"
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Status</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Status</label>
           <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="active">Active</option>
             <option value="closed">Closed</option>
@@ -226,24 +226,24 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
 
       {/* Notes */}
       <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Notes (Optional)</label>
+        <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Notes (Optional)</label>
         <textarea
           name="notes"
           value={formData.notes || ''}
           onChange={handleChange}
-          placeholder="Add any notes about this loan..."
-          rows={3}
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          placeholder="Add any notes..."
+          rows={2}
+          className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 pt-4 border-t border-[var(--border)]">
+      <div className="flex gap-2 pt-3 border-t border-[var(--border)]">
         <Button
           variant="outline"
           onClick={onCancel}
           disabled={isSubmitting || isLoading}
-          className="flex-1"
+          className="flex-1 text-xs py-1.5"
         >
           Cancel
         </Button>
@@ -251,9 +251,9 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
           variant="primary"
           type="submit"
           disabled={isSubmitting || isLoading}
-          className="flex-1"
+          className="flex-1 text-xs py-1.5"
         >
-          {isSubmitting || isLoading ? 'Saving...' : 'Save Loan'}
+          {isSubmitting || isLoading ? 'Saving...' : 'Save'}
         </Button>
       </div>
     </form>
