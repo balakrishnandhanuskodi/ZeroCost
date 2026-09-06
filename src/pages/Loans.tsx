@@ -252,8 +252,8 @@ export default function Loans() {
 
       {/* Loan Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end md:items-center justify-center z-50">
-          <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[450px] max-h-[85vh] overflow-y-auto p-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start md:items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[450px] max-h-[95vh] md:max-h-[90vh] overflow-y-auto p-4 shadow-2xl my-2 md:my-0">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display font-700 text-sm text-[var(--foreground)]">
                 {editingLoan ? 'Edit Loan' : 'Add Loan'}
