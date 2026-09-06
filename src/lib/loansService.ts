@@ -318,6 +318,46 @@ export async function updateLoan(loanId: string, data: LoanFormInput): Promise<L
   }
 }
 
+// Create payment schedule records in loan_payments table
+export async function createLoanPaymentSchedule(userId: string, loanId: string, schedule: PaymentScheduleItem[]): Promise<boolean> {
+  if (!isSupabaseConfigured || !supabase) {
+    return true // Skip for localStorage fallback
+  }
+
+  try {
+    const paymentRecords = schedule.map(item => ({
+      user_id: userId,
+      loan_id: loanId,
+      payment_number: item.payment_number,
+      payment_month: item.payment_month,
+      due_date: item.due_date,
+      principal_amount: item.principal_amount,
+      interest_amount: item.interest_amount,
+      total_payment: item.total_payment,
+      balance_after_payment: item.balance_after_payment,
+      status: item.status,
+      payment_date: item.payment_date || null,
+      skip_penalty: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }))
+
+    const { error } = await supabase
+      .from('loan_payments')
+      .insert(paymentRecords)
+
+    if (error) {
+      console.error('Error creating payment records:', error)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('Failed to create payment records:', err)
+    return false
+  }
+}
+
 // Get payment history for a loan
 export async function getLoanPaymentHistory(loanId: string): Promise<{ count: number; totalAmount: number }> {
   if (!isSupabaseConfigured || !supabase) {
