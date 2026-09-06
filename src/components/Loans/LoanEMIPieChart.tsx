@@ -12,49 +12,39 @@ export default function LoanEMIPieChart({
   const principalPercent = totalEMI > 0 ? (principalAmount / totalEMI) * 100 : 0
   const interestPercent = totalEMI > 0 ? (interestAmount / totalEMI) * 100 : 0
 
-  const radius = 45
+  const radius = 40
   const circumference = 2 * Math.PI * radius
-  const principalOffset = circumference - (principalPercent / 100) * circumference
+  const principalLength = (principalPercent / 100) * circumference
+  const interestLength = (interestPercent / 100) * circumference
 
   return (
     <div className="flex flex-col items-center gap-1">
       <svg width="120" height="120" viewBox="0 0 120 120" className="overflow-visible">
-        {/* Background circle */}
-        <circle
-          cx="60"
-          cy="60"
-          r={radius}
-          fill="none"
-          stroke="var(--border)"
-          strokeWidth="2"
-        />
-
-        {/* Principal segment */}
+        {/* Principal segment - starts at top (90 degrees) and goes clockwise */}
         <circle
           cx="60"
           cy="60"
           r={radius}
           fill="none"
           stroke="var(--primary)"
-          strokeWidth="10"
-          strokeDasharray={circumference}
-          strokeDashoffset={principalOffset}
+          strokeWidth="12"
+          strokeDasharray={`${principalLength} ${circumference}`}
           strokeLinecap="round"
           transform="rotate(-90 60 60)"
         />
 
-        {/* Interest segment */}
+        {/* Interest segment - starts after principal */}
         <circle
           cx="60"
           cy="60"
           r={radius}
           fill="none"
           stroke="var(--warning)"
-          strokeWidth="10"
-          strokeDasharray={circumference}
-          strokeDashoffset={-((principalPercent / 100) * circumference)}
+          strokeWidth="12"
+          strokeDasharray={`${interestLength} ${circumference}`}
+          strokeDashoffset={-principalLength}
           strokeLinecap="round"
-          transform={`rotate(${(principalPercent / 100) * 360 - 90} 60 60)`}
+          transform="rotate(-90 60 60)"
         />
 
         {/* Center text */}
