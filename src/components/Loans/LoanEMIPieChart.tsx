@@ -75,7 +75,7 @@ export default function LoanEMIPieChart({
         <div className="text-[10px] text-[var(--muted-foreground)] mb-0.5">{label}</div>
         <div className="text-[11px] text-[var(--muted-foreground)] mb-0.5">Interest: {Math.round(interestPercent)}%</div>
         <div className="text-[11px] font-semibold text-[var(--primary)]">
-          ₹{Math.round(principalAmount)} | ₹{Math.round(interestAmount)}
+          ₹{Math.round(principalAmount).toLocaleString('en-IN')} | ₹{Math.round(interestAmount).toLocaleString('en-IN')}
         </div>
       </div>
     </div>
