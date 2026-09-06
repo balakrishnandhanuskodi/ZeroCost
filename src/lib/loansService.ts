@@ -402,6 +402,37 @@ export async function getLoanPaymentHistory(loanId: string): Promise<{ count: nu
   }
 }
 
+// Get principal and interest breakdown for paid EMIs
+export async function getPaidEMIBreakdown(loanId: string): Promise<{ principalPaid: number; interestPaid: number; totalPaid: number }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { principalPaid: 0, interestPaid: 0, totalPaid: 0 }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('loan_payments')
+      .select('principal_amount, interest_amount, total_payment')
+      .eq('loan_id', loanId)
+      .eq('status', 'paid')
+      .order('payment_number', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching payment breakdown:', error)
+      return { principalPaid: 0, interestPaid: 0, totalPaid: 0 }
+    }
+
+    const payments = data || []
+    const principalPaid = payments.reduce((sum, p) => sum + (p.principal_amount || 0), 0)
+    const interestPaid = payments.reduce((sum, p) => sum + (p.interest_amount || 0), 0)
+    const totalPaid = payments.reduce((sum, p) => sum + (p.total_payment || 0), 0)
+
+    return { principalPaid, interestPaid, totalPaid }
+  } catch (err) {
+    console.error('Failed to fetch payment breakdown:', err)
+    return { principalPaid: 0, interestPaid: 0, totalPaid: 0 }
+  }
+}
+
 // Update payment schedule records (deletes old ones and creates new ones)
 export async function updateLoanPaymentSchedule(userId: string, loanId: string, schedule: PaymentScheduleItem[]): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) {
