@@ -1,11 +1,7 @@
-import { LayoutDashboard, ArrowLeftRight, CreditCard, Bot, User } from 'lucide-react'
+import { LayoutDashboard } from 'lucide-react'
 
 const navItems = [
-  { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-  { id: 'transactions', label: 'Txns', icon: ArrowLeftRight },
-  { id: 'loans', label: 'Loans', icon: CreditCard },
-  { id: 'ai-coach', label: 'AI', icon: Bot },
-  { id: 'settings', label: 'Profile', icon: User },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
 ]
 
 interface BottomNavProps {
@@ -16,14 +12,14 @@ interface BottomNavProps {
 export default function BottomNav({ active, onNavigate }: BottomNavProps) {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--card)] border-t border-[var(--border)] z-40 px-2 pb-safe">
-      <div className="flex items-center justify-around">
+      <div className="flex items-center justify-center">
         {navItems.map(({ id, label, icon: Icon }) => {
           const isActive = active === id
           return (
             <button
               key={id}
               onClick={() => onNavigate(id)}
-              className={`flex flex-col items-center gap-0.5 px-4 py-3 transition-all ${
+              className={`flex flex-col items-center gap-0.5 px-6 py-3 transition-all ${
                 isActive ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'
               }`}
             >
