@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
-import DashboardEMISplit from '../components/Loans/DashboardEMISplit'
+import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
 import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
@@ -206,28 +206,19 @@ export default function Loans() {
 
       {/* Summary Cards */}
       {loans.length > 0 && (
-        <div className="space-y-2 mb-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div className="bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg p-3">
-              <div className="text-[var(--muted-foreground)] text-[10px] font-medium mb-0.5">Total Outstanding</div>
-              <div className="font-display font-700 text-base text-[var(--primary)]">
-                ₹{totalOutstanding.toLocaleString('en-IN')}
-              </div>
-            </div>
-            <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg p-3">
-              <div className="text-[var(--muted-foreground)] text-[10px] font-medium mb-0.5">Total Monthly EMI</div>
-              <div className="font-display font-700 text-base text-[var(--warning)]">
-                ₹{Math.round(totalEMI).toLocaleString('en-IN')}
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+          <div className="bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg p-3">
+            <div className="text-[var(--muted-foreground)] text-[10px] font-medium mb-0.5">Total Outstanding</div>
+            <div className="font-display font-700 text-base text-[var(--primary)]">
+              ₹{totalOutstanding.toLocaleString('en-IN')}
             </div>
           </div>
-
-          {/* EMI Split Dashboard */}
-          <DashboardEMISplit
-            totalMonthlyEMI={totalEMI}
-            totalPrincipalPayment={Math.round(totalPrincipalInEMI)}
-            totalInterestPayment={Math.round(totalInterestInEMI)}
-          />
+          <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg p-3">
+            <div className="text-[var(--muted-foreground)] text-[10px] font-medium mb-0.5">Total Monthly EMI</div>
+            <div className="font-display font-700 text-base text-[var(--warning)]">
+              ₹{Math.round(totalEMI).toLocaleString('en-IN')}
+            </div>
+          </div>
         </div>
       )}
 
@@ -299,22 +290,33 @@ export default function Loans() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <div>
-                    <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Principal</p>
-                    <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div>
+                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Principal</p>
+                      <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
+                    </div>
+                    <div>
+                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Balance</p>
+                      <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
+                    </div>
+                    <div>
+                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Rate p.a.</p>
+                      <p className="text-[9px] font-semibold text-[var(--foreground)]">{loan.interest_rate.toFixed(2)}%</p>
+                    </div>
+                    <div>
+                      <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Monthly EMI</p>
+                      <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Balance</p>
-                    <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
-                  </div>
-                  <div>
-                    <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Rate p.a.</p>
-                    <p className="text-[9px] font-semibold text-[var(--foreground)]">{loan.interest_rate.toFixed(2)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[7px] text-[var(--muted-foreground)] mb-0.5 uppercase font-medium">Monthly EMI</p>
-                    <p className="text-[9px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
+
+                  {/* Pie Chart */}
+                  <div className="flex justify-center">
+                    <LoanEMIPieChart
+                      principalAmount={tenureMonths > 0 ? loan.principal / tenureMonths : 0}
+                      interestAmount={emi - (tenureMonths > 0 ? loan.principal / tenureMonths : 0)}
+                      totalEMI={emi}
+                    />
                   </div>
                 </div>
               </div>
