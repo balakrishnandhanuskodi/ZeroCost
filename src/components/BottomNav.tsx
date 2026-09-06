@@ -1,7 +1,8 @@
-import { LayoutDashboard } from 'lucide-react'
+import { LayoutDashboard, Banknote } from 'lucide-react'
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'loans', label: 'Loans', icon: Banknote },
 ]
 
 interface BottomNavProps {

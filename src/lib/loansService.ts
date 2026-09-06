@@ -2,43 +2,74 @@ import { supabase, isSupabaseConfigured } from './supabase'
 
 export interface LoanRecord {
   id: string
-  userId: string
-  bankName: string
-  loanAmount: number
-  interestRate: number
-  loanTerm: number
-  loanType: string
-  startDate: string
-  createdAt: string
-  updatedAt: string
+  user_id: string
+  lender_name: string
+  principal: number
+  current_balance: number
+  interest_rate: number
+  interest_type: 'fixed' | 'variable'
+  tenure: number
+  tenure_unit: 'months' | 'years'
+  start_date: string
+  end_date: string | null
+  monthly_payment_date: number | null
+  emi_amount: number | null
+  status: 'active' | 'closed' | 'defaulted'
+  notes: string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface LoanFormInput {
-  bankName: string
-  loanAmount: string
-  interestRate: string
-  loanTerm: string
-  loanType: string
-  startDate: string
+  lender_name: string
+  principal: string
+  current_balance: string
+  interest_rate: string
+  interest_type: 'fixed' | 'variable'
+  tenure: string
+  tenure_unit: 'months' | 'years'
+  start_date: string
+  end_date?: string
+  monthly_payment_date?: string
+  status: 'active' | 'closed' | 'defaulted'
+  notes?: string
 }
 
 // Convert form data to database format
-function formatLoanData(data: LoanFormInput): Omit<LoanRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt'> {
+function formatLoanData(data: LoanFormInput) {
+  const tenureMonths = data.tenure_unit === 'years' ? parseInt(data.tenure) * 12 : parseInt(data.tenure)
+  const emiAmount = calculateEMI(parseFloat(data.principal), parseFloat(data.interest_rate), tenureMonths)
+
   return {
-    bankName: data.bankName,
-    loanAmount: parseFloat(data.loanAmount),
-    interestRate: parseFloat(data.interestRate),
-    loanTerm: parseInt(data.loanTerm),
-    loanType: data.loanType,
-    startDate: data.startDate,
+    lender_name: data.lender_name,
+    principal: parseFloat(data.principal),
+    current_balance: parseFloat(data.current_balance),
+    interest_rate: parseFloat(data.interest_rate),
+    interest_type: data.interest_type,
+    tenure: parseInt(data.tenure),
+    tenure_unit: data.tenure_unit,
+    start_date: data.start_date,
+    end_date: data.end_date || null,
+    monthly_payment_date: data.monthly_payment_date ? parseInt(data.monthly_payment_date) : null,
+    emi_amount: emiAmount,
+    status: data.status,
+    notes: data.notes || null,
   }
 }
 
-// Calculate EMI
+// Calculate EMI (Equated Monthly Installment)
 export function calculateEMI(principal: number, rate: number, months: number): number {
   const monthlyRate = rate / 100 / 12
   if (monthlyRate === 0) return principal / months
   return (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
+}
+
+// Calculate remaining tenure in months
+export function getRemainingMonths(startDate: string, tenureMonths: number): number {
+  const start = new Date(startDate)
+  const now = new Date()
+  const monthsPassed = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+  return Math.max(0, tenureMonths - monthsPassed)
 }
 
 // Get all loans for the current user
@@ -53,8 +84,8 @@ export async function getLoansByUser(userId: string): Promise<LoanRecord[]> {
     const { data, error } = await supabase
       .from('loans')
       .select('*')
-      .eq('userId', userId)
-      .order('createdAt', { ascending: false })
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching loans:', error)
@@ -77,10 +108,10 @@ export async function createLoan(userId: string, data: LoanFormInput): Promise<L
     const id = crypto.randomUUID()
     const loan: LoanRecord = {
       id,
-      userId,
+      user_id: userId,
       ...formattedData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
     const loans = await getLoansByUser(userId)
@@ -94,7 +125,7 @@ export async function createLoan(userId: string, data: LoanFormInput): Promise<L
       .from('loans')
       .insert([
         {
-          userId,
+          user_id: userId,
           ...formattedData,
         },
       ])
@@ -125,7 +156,7 @@ export async function updateLoan(loanId: string, data: LoanFormInput): Promise<L
       loans[index] = {
         ...loans[index],
         ...formattedData,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
       localStorage.setItem('all_loans', JSON.stringify(loans))
       return loans[index]
