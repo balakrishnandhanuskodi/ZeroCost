@@ -1,11 +1,12 @@
 import {
   LayoutDashboard, Bell, ChevronLeft, ChevronRight,
-  LogOut, Wallet
+  LogOut, Wallet, Banknote
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'loans', label: 'Loans', icon: Banknote },
 ]
 
 interface SidebarProps {
