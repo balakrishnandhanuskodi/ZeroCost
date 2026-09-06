@@ -22,21 +22,21 @@ export default function EMISplitCard({
   const interestPercent = totalEMI > 0 ? (interestAmount / totalEMI) * 100 : 0
 
   const containerClass = compact
-    ? 'p-2 gap-2'
-    : 'p-3 gap-2.5'
+    ? 'p-1.5 gap-1.5'
+    : 'p-2 gap-1.5'
 
   const labelClass = compact
-    ? 'text-[9px]'
-    : 'text-[10px]'
+    ? 'text-[8px]'
+    : 'text-[9px]'
 
   const valueClass = compact
-    ? 'text-xs'
-    : 'text-sm'
+    ? 'text-[9px]'
+    : 'text-xs'
 
   return (
-    <div className={`bg-[var(--card)] border border-[var(--border)] rounded-lg ${containerClass} space-y-2`}>
+    <div className={`bg-[var(--card)] border border-[var(--border)] rounded-lg ${containerClass} space-y-1`}>
       {/* Total EMI */}
-      <div className="pb-2 border-b border-[var(--border)]">
+      <div className="pb-1 border-b border-[var(--border)]">
         <p className={`${labelClass} text-[var(--muted-foreground)] mb-0.5`}>Total Monthly EMI</p>
         <p className={`font-display font-700 ${valueClass} text-[var(--foreground)]`}>
           ₹{totalEMI.toLocaleString('en-IN')}
@@ -44,7 +44,7 @@ export default function EMISplitCard({
       </div>
 
       {/* Principal Component */}
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="flex items-center justify-between">
           <p className={`${labelClass} text-[var(--muted-foreground)]`}>Principal</p>
           {showPercentages && (
@@ -55,7 +55,7 @@ export default function EMISplitCard({
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+        <div className="w-full h-0.5 bg-[var(--border)] rounded-full overflow-hidden">
           <div
             className="h-full bg-[var(--primary)] transition-all"
             style={{ width: `${principalPercent}%` }}
@@ -68,7 +68,7 @@ export default function EMISplitCard({
       </div>
 
       {/* Interest Component */}
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="flex items-center justify-between">
           <p className={`${labelClass} text-[var(--muted-foreground)]`}>Interest</p>
           {showPercentages && (
@@ -79,7 +79,7 @@ export default function EMISplitCard({
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+        <div className="w-full h-0.5 bg-[var(--border)] rounded-full overflow-hidden">
           <div
             className="h-full bg-[var(--warning)] transition-all"
             style={{ width: `${interestPercent}%` }}
@@ -92,7 +92,7 @@ export default function EMISplitCard({
       </div>
 
       {/* Info Message */}
-      <div className="pt-2 border-t border-[var(--border)]">
+      <div className="pt-1 border-t border-[var(--border)]">
         <p className={`${labelClass} text-[var(--muted-foreground)] leading-relaxed`}>
           💡 Each month, {Math.round(principalPercent)}% goes to reducing your debt, {Math.round(interestPercent)}% goes to interest
         </p>
