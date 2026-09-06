@@ -60,44 +60,44 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {/* Total Loans */}
         <div className="bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg p-4">
-          <div className="text-[var(--muted-foreground)] text-xs font-medium mb-0.5">Total Loans</div>
-          <div className="font-display font-700 text-lg text-[var(--primary)]">
+          <div className="text-[var(--muted-foreground)] text-sm font-medium mb-0.5">Total Loans</div>
+          <div className="font-display font-700 text-[24px] text-[var(--primary)]">
             ₹{totalLoanAmount.toLocaleString('en-IN')}
           </div>
-          <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+          <p className="text-[13px] text-[var(--muted-foreground)] mt-1">
             {activeLoanCount} active {activeLoanCount === 1 ? 'loan' : 'loans'}
           </p>
         </div>
 
         {/* Outstanding Balance */}
         <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg p-4">
-          <div className="text-[var(--muted-foreground)] text-xs font-medium mb-0.5">Outstanding Balance</div>
-          <div className="font-display font-700 text-lg text-[var(--warning)]">
+          <div className="text-[var(--muted-foreground)] text-sm font-medium mb-0.5">Outstanding Balance</div>
+          <div className="font-display font-700 text-[24px] text-[var(--warning)]">
             ₹{totalOutstanding.toLocaleString('en-IN')}
           </div>
-          <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+          <p className="text-[13px] text-[var(--muted-foreground)] mt-1">
             Amount to be paid
           </p>
         </div>
 
         {/* Monthly EMI */}
         <div className="bg-[var(--info-soft)] border border-[var(--info)] rounded-lg p-4">
-          <div className="text-[var(--muted-foreground)] text-xs font-medium mb-0.5">Monthly EMI</div>
-          <div className="font-display font-700 text-lg text-[var(--info)]">
+          <div className="text-[var(--muted-foreground)] text-sm font-medium mb-0.5">Monthly EMI</div>
+          <div className="font-display font-700 text-[24px] text-[var(--info)]">
             ₹{Math.round(totalEMI).toLocaleString('en-IN')}
           </div>
-          <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+          <p className="text-[13px] text-[var(--muted-foreground)] mt-1">
             Total across all loans
           </p>
         </div>
 
         {/* Net Worth */}
         <div className="bg-[var(--success-soft)] border border-[var(--success)] rounded-lg p-4">
-          <div className="text-[var(--muted-foreground)] text-xs font-medium mb-0.5">Net Worth</div>
-          <div className="font-display font-700 text-lg text-[var(--success)]">
+          <div className="text-[var(--muted-foreground)] text-sm font-medium mb-0.5">Net Worth</div>
+          <div className="font-display font-700 text-[24px] text-[var(--success)]">
             ₹{(totalLoanAmount - totalOutstanding).toLocaleString('en-IN')}
           </div>
-          <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+          <p className="text-[13px] text-[var(--muted-foreground)] mt-1">
             Principal paid
           </p>
         </div>
@@ -129,27 +129,27 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4">
-          <h2 className="font-display font-700 text-sm text-[var(--foreground)] mb-2">Loan Summary</h2>
+          <h2 className="font-display font-700 text-base text-[var(--foreground)] mb-2">Loan Summary</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
             <div>
-              <p className="text-[9px] text-[var(--muted-foreground)] mb-1">Total Loans</p>
-              <p className="font-semibold text-xs text-[var(--foreground)]">{activeLoanCount}</p>
+              <p className="text-[12px] text-[var(--muted-foreground)] mb-1">Total Loans</p>
+              <p className="font-semibold text-sm text-[var(--foreground)]">{activeLoanCount}</p>
             </div>
             <div>
-              <p className="text-[9px] text-[var(--muted-foreground)] mb-1">Avg Interest Rate</p>
-              <p className="font-semibold text-xs text-[var(--foreground)]">
+              <p className="text-[12px] text-[var(--muted-foreground)] mb-1">Avg Interest Rate</p>
+              <p className="font-semibold text-sm text-[var(--foreground)]">
                 {(loans.reduce((sum, l) => sum + l.interest_rate, 0) / loans.length).toFixed(2)}%
               </p>
             </div>
             <div>
-              <p className="text-[9px] text-[var(--muted-foreground)] mb-1">Months to Clear</p>
-              <p className="font-semibold text-xs text-[var(--foreground)]">
+              <p className="text-[12px] text-[var(--muted-foreground)] mb-1">Months to Clear</p>
+              <p className="font-semibold text-sm text-[var(--foreground)]">
                 {Math.max(...loans.map(l => l.tenure_unit === 'years' ? l.tenure * 12 : l.tenure))}
               </p>
             </div>
             <div>
-              <p className="text-[9px] text-[var(--muted-foreground)] mb-1">Healthy Loans</p>
-              <p className="font-semibold text-xs text-[var(--success)]">
+              <p className="text-[12px] text-[var(--muted-foreground)] mb-1">Healthy Loans</p>
+              <p className="font-semibold text-sm text-[var(--success)]">
                 {loans.filter(l => (l.health_score || 75) >= 60).length}/{activeLoanCount}
               </p>
             </div>

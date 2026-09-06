@@ -62,7 +62,7 @@ export default function LoanEMIPieChart({
           x="60"
           y="55"
           textAnchor="middle"
-          className="font-display font-700 text-[10px]"
+          className="font-display font-700 text-[14px]"
           fill="var(--foreground)"
         >
           {Math.round(principalPercent)}%
@@ -71,7 +71,7 @@ export default function LoanEMIPieChart({
           x="60"
           y="68"
           textAnchor="middle"
-          className="text-[7px]"
+          className="text-[10px]"
           fill="var(--muted-foreground)"
         >
           Principal
@@ -80,8 +80,8 @@ export default function LoanEMIPieChart({
 
       {/* Legend */}
       <div className="text-center w-full">
-        <div className="text-[8px] text-[var(--muted-foreground)] mb-0.5">Interest: {Math.round(interestPercent)}%</div>
-        <div className="text-[8px] font-semibold text-[var(--primary)]">
+        <div className="text-[11px] text-[var(--muted-foreground)] mb-0.5">Interest: {Math.round(interestPercent)}%</div>
+        <div className="text-[11px] font-semibold text-[var(--primary)]">
           ₹{Math.round(principalAmount)} | ₹{Math.round(interestAmount)}
         </div>
       </div>
