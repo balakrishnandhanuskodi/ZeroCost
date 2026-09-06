@@ -116,8 +116,11 @@ export default function Loans() {
   }
 
   // Calculate totals
-  const totalOutstanding = loans.reduce((sum, loan) => sum + loan.loanAmount, 0)
-  const totalEMI = loans.reduce((sum, loan) => sum + calculateEMI(loan.loanAmount, loan.interestRate, loan.loanTerm), 0)
+  const totalOutstanding = loans.reduce((sum, loan) => sum + loan.current_balance, 0)
+  const totalEMI = loans.reduce((sum, loan) => {
+    const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
+    return sum + (loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths))
+  }, 0)
 
   return (
     <div className="p-6 pb-20 md:pb-8 animate-fade-in">
@@ -179,8 +182,13 @@ export default function Loans() {
         /* Loans List */
         <div className="space-y-3">
           {loans.map(loan => {
-            const emi = calculateEMI(loan.loanAmount, loan.interestRate, loan.loanTerm)
-            const isOverdue = new Date(loan.startDate) < new Date()
+            const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
+            const emi = loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths)
+            const statusColors = {
+              active: 'bg-[var(--success-soft)] text-[var(--success)]',
+              closed: 'bg-[var(--muted)] text-[var(--muted-foreground)]',
+              defaulted: 'bg-[var(--danger-soft)] text-[var(--danger)]'
+            }
 
             return (
               <div
@@ -190,13 +198,13 @@ export default function Loans() {
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-display font-700 text-[var(--foreground)]">{loan.bankName}</h3>
-                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[var(--info-soft)] text-[var(--info)]">
-                        {loan.loanType}
+                      <h3 className="font-display font-700 text-[var(--foreground)]">{loan.lender_name}</h3>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColors[loan.status]}`}>
+                        {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
                       </span>
                     </div>
                     <p className="text-xs text-[var(--muted-foreground)]">
-                      Started {new Date(loan.startDate).toLocaleDateString()}
+                      Started {new Date(loan.start_date).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex gap-1">
@@ -220,20 +228,20 @@ export default function Loans() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Amount</p>
-                    <p className="font-semibold text-[var(--foreground)]">₹{loan.loanAmount.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Principal</p>
+                    <p className="font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Balance</p>
+                    <p className="font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Rate p.a.</p>
-                    <p className="font-semibold text-[var(--foreground)]">{loan.interestRate}%</p>
+                    <p className="font-semibold text-[var(--foreground)]">{loan.interest_rate}%</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">EMI</p>
                     <p className="font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Term</p>
-                    <p className="font-semibold text-[var(--foreground)]">{loan.loanTerm} months</p>
                   </div>
                 </div>
               </div>
@@ -264,12 +272,18 @@ export default function Loans() {
               initialData={
                 editingLoan
                   ? {
-                      bankName: editingLoan.bankName,
-                      loanAmount: editingLoan.loanAmount.toString(),
-                      interestRate: editingLoan.interestRate.toString(),
-                      loanTerm: editingLoan.loanTerm.toString(),
-                      loanType: editingLoan.loanType,
-                      startDate: editingLoan.startDate,
+                      lender_name: editingLoan.lender_name,
+                      principal: editingLoan.principal.toString(),
+                      current_balance: editingLoan.current_balance.toString(),
+                      interest_rate: editingLoan.interest_rate.toString(),
+                      interest_type: editingLoan.interest_type,
+                      tenure: editingLoan.tenure.toString(),
+                      tenure_unit: editingLoan.tenure_unit,
+                      start_date: editingLoan.start_date,
+                      end_date: editingLoan.end_date || '',
+                      monthly_payment_date: editingLoan.monthly_payment_date?.toString() || '',
+                      status: editingLoan.status,
+                      notes: editingLoan.notes || '',
                     }
                   : undefined
               }

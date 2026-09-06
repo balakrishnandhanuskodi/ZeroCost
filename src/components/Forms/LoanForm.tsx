@@ -1,55 +1,49 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
 import Button from '../UI/Button'
-import Input from '../UI/Input'
-
-interface LoanFormData {
-  bankName: string
-  loanAmount: string
-  interestRate: string
-  loanTerm: string
-  loanType: string
-  startDate: string
-}
+import { LoanFormInput } from '../../lib/loansService'
 
 interface LoanFormProps {
-  onSubmit: (data: LoanFormData) => Promise<void>
+  onSubmit: (data: LoanFormInput) => Promise<void>
   onCancel: () => void
-  initialData?: LoanFormData
+  initialData?: LoanFormInput
   isLoading?: boolean
 }
 
 export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = false }: LoanFormProps) {
-  const [formData, setFormData] = useState<LoanFormData>(
+  const [formData, setFormData] = useState<LoanFormInput>(
     initialData || {
-      bankName: '',
-      loanAmount: '',
-      interestRate: '',
-      loanTerm: '',
-      loanType: 'home',
-      startDate: '',
+      lender_name: '',
+      principal: '',
+      current_balance: '',
+      interest_rate: '',
+      interest_type: 'fixed',
+      tenure: '',
+      tenure_unit: 'months',
+      start_date: '',
+      status: 'active',
     }
   )
-  const [errors, setErrors] = useState<Partial<LoanFormData>>({})
+  const [errors, setErrors] = useState<Partial<LoanFormInput>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<LoanFormData> = {}
+    const newErrors: Partial<LoanFormInput> = {}
 
-    if (!formData.bankName.trim()) newErrors.bankName = 'Bank name is required'
-    if (!formData.loanAmount || parseFloat(formData.loanAmount) <= 0) newErrors.loanAmount = 'Valid loan amount required'
-    if (!formData.interestRate || parseFloat(formData.interestRate) < 0) newErrors.interestRate = 'Valid interest rate required'
-    if (!formData.loanTerm || parseInt(formData.loanTerm) <= 0) newErrors.loanTerm = 'Valid loan term required'
-    if (!formData.startDate) newErrors.startDate = 'Start date is required'
+    if (!formData.lender_name.trim()) newErrors.lender_name = 'Lender name is required'
+    if (!formData.principal || parseFloat(formData.principal) <= 0) newErrors.principal = 'Valid principal amount required'
+    if (!formData.current_balance || parseFloat(formData.current_balance) < 0) newErrors.current_balance = 'Valid balance required'
+    if (!formData.interest_rate || parseFloat(formData.interest_rate) < 0) newErrors.interest_rate = 'Valid interest rate required'
+    if (!formData.tenure || parseInt(formData.tenure) <= 0) newErrors.tenure = 'Valid tenure required'
+    if (!formData.start_date) newErrors.start_date = 'Start date is required'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    if (errors[name as keyof LoanFormData]) {
+    setFormData(prev => ({ ...prev, [name]: value as any }))
+    if (errors[name as keyof LoanFormInput]) {
       setErrors(prev => ({ ...prev, [name]: undefined }))
     }
   }
@@ -67,111 +61,180 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Bank Name */}
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto">
+      {/* Lender Name */}
       <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-          Bank Name
-        </label>
+        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Lender Name</label>
         <input
           type="text"
-          name="bankName"
-          value={formData.bankName}
+          name="lender_name"
+          value={formData.lender_name}
           onChange={handleChange}
           placeholder="e.g., HDFC Bank, ICICI Bank"
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        />
-        {errors.bankName && <p className="text-xs text-[var(--danger)] mt-1">{errors.bankName}</p>}
-      </div>
-
-      {/* Loan Type */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-          Loan Type
-        </label>
-        <select
-          name="loanType"
-          value={formData.loanType}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        >
-          <option value="home">Home Loan</option>
-          <option value="personal">Personal Loan</option>
-          <option value="auto">Auto Loan</option>
-          <option value="education">Education Loan</option>
-          <option value="business">Business Loan</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-
-      {/* Loan Amount */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-          Loan Amount (₹)
-        </label>
-        <input
-          type="number"
-          name="loanAmount"
-          value={formData.loanAmount}
-          onChange={handleChange}
-          placeholder="e.g., 1000000"
-          min="0"
-          step="1000"
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        />
-        {errors.loanAmount && <p className="text-xs text-[var(--danger)] mt-1">{errors.loanAmount}</p>}
-      </div>
-
-      {/* Interest Rate */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-          Interest Rate (% p.a.)
-        </label>
-        <input
-          type="number"
-          name="interestRate"
-          value={formData.interestRate}
-          onChange={handleChange}
-          placeholder="e.g., 7.5"
-          min="0"
-          max="100"
-          step="0.1"
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        />
-        {errors.interestRate && <p className="text-xs text-[var(--danger)] mt-1">{errors.interestRate}</p>}
-      </div>
-
-      {/* Loan Term */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-          Loan Term (Months)
-        </label>
-        <input
-          type="number"
-          name="loanTerm"
-          value={formData.loanTerm}
-          onChange={handleChange}
-          placeholder="e.g., 60"
-          min="1"
-          step="1"
-          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        />
-        {errors.loanTerm && <p className="text-xs text-[var(--danger)] mt-1">{errors.loanTerm}</p>}
-      </div>
-
-      {/* Start Date */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-          Loan Start Date
-        </label>
-        <input
-          type="date"
-          name="startDate"
-          value={formData.startDate}
-          onChange={handleChange}
           className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
-        {errors.startDate && <p className="text-xs text-[var(--danger)] mt-1">{errors.startDate}</p>}
+        {errors.lender_name && <p className="text-xs text-[var(--danger)] mt-1">{errors.lender_name}</p>}
+      </div>
+
+      {/* Principal & Current Balance */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Principal (₹)</label>
+          <input
+            type="number"
+            name="principal"
+            value={formData.principal}
+            onChange={handleChange}
+            placeholder="0"
+            min="0"
+            step="1000"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+          {errors.principal && <p className="text-xs text-[var(--danger)] mt-1">{errors.principal}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Current Balance (₹)</label>
+          <input
+            type="number"
+            name="current_balance"
+            value={formData.current_balance}
+            onChange={handleChange}
+            placeholder="0"
+            min="0"
+            step="1000"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+          {errors.current_balance && <p className="text-xs text-[var(--danger)] mt-1">{errors.current_balance}</p>}
+        </div>
+      </div>
+
+      {/* Interest Rate & Type */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Interest Rate (%)</label>
+          <input
+            type="number"
+            name="interest_rate"
+            value={formData.interest_rate}
+            onChange={handleChange}
+            placeholder="7.5"
+            min="0"
+            max="100"
+            step="0.1"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+          {errors.interest_rate && <p className="text-xs text-[var(--danger)] mt-1">{errors.interest_rate}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Interest Type</label>
+          <select
+            name="interest_type"
+            value={formData.interest_type}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          >
+            <option value="fixed">Fixed</option>
+            <option value="variable">Variable</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Tenure */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Tenure</label>
+          <input
+            type="number"
+            name="tenure"
+            value={formData.tenure}
+            onChange={handleChange}
+            placeholder="60"
+            min="1"
+            step="1"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+          {errors.tenure && <p className="text-xs text-[var(--danger)] mt-1">{errors.tenure}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Unit</label>
+          <select
+            name="tenure_unit"
+            value={formData.tenure_unit}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          >
+            <option value="months">Months</option>
+            <option value="years">Years</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Start Date & Payment Date */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Start Date</label>
+          <input
+            type="date"
+            name="start_date"
+            value={formData.start_date}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+          {errors.start_date && <p className="text-xs text-[var(--danger)] mt-1">{errors.start_date}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">End Date (Optional)</label>
+          <input
+            type="date"
+            name="end_date"
+            value={formData.end_date || ''}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+        </div>
+      </div>
+
+      {/* Payment Date & Status */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Payment Date (1-31)</label>
+          <input
+            type="number"
+            name="monthly_payment_date"
+            value={formData.monthly_payment_date || ''}
+            onChange={handleChange}
+            placeholder="15"
+            min="1"
+            max="31"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Status</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          >
+            <option value="active">Active</option>
+            <option value="closed">Closed</option>
+            <option value="defaulted">Defaulted</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Notes */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Notes (Optional)</label>
+        <textarea
+          name="notes"
+          value={formData.notes || ''}
+          onChange={handleChange}
+          placeholder="Add any notes about this loan..."
+          rows={3}
+          className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        />
       </div>
 
       {/* Actions */}
