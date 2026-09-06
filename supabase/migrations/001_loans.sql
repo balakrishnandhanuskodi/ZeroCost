@@ -32,10 +32,10 @@ CREATE TABLE loans (
 );
 
 -- Create indexes
-CREATE INDEX idx_loans_user_id ON loans(user_id);
-CREATE INDEX idx_loans_status ON loans(status);
-CREATE INDEX idx_loans_loan_type ON loans(loan_type);
-CREATE INDEX idx_loans_health_score ON loans(health_score);
+CREATE INDEX IF NOT EXISTS idx_loans_user_id ON loans(user_id);
+CREATE INDEX IF NOT EXISTS idx_loans_status ON loans(status);
+CREATE INDEX IF NOT EXISTS idx_loans_loan_type ON loans(loan_type);
+CREATE INDEX IF NOT EXISTS idx_loans_health_score ON loans(health_score);
 
 -- Enable RLS
 ALTER TABLE loans ENABLE ROW LEVEL SECURITY;
