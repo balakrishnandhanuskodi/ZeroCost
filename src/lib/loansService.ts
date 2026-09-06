@@ -1,20 +1,27 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 
+export type LoanType = 'Home' | 'Personal' | 'Auto' | 'Education' | 'Other'
+export type LoanStatus = 'active' | 'closed' | 'defaulted'
+export type InterestType = 'fixed' | 'variable'
+export type TenureUnit = 'months' | 'years'
+
 export interface LoanRecord {
   id: string
   user_id: string
   lender_name: string
+  loan_type?: LoanType
   principal: number
   current_balance: number
   interest_rate: number
-  interest_type: 'fixed' | 'variable'
+  interest_type: InterestType
   tenure: number
-  tenure_unit: 'months' | 'years'
+  tenure_unit: TenureUnit
   start_date: string
   end_date: string | null
   monthly_payment_date: number | null
   emi_amount: number | null
-  status: 'active' | 'closed' | 'defaulted'
+  status: LoanStatus
+  health_score?: number
   notes: string | null
   created_at: string
   updated_at: string
@@ -22,16 +29,17 @@ export interface LoanRecord {
 
 export interface LoanFormInput {
   lender_name: string
+  loan_type?: LoanType
   principal: string
   current_balance: string
   interest_rate: string
-  interest_type: 'fixed' | 'variable'
+  interest_type: InterestType
   tenure: string
-  tenure_unit: 'months' | 'years'
+  tenure_unit: TenureUnit
   start_date: string
   end_date?: string
   monthly_payment_date?: string
-  status: 'active' | 'closed' | 'defaulted'
+  status: LoanStatus
   notes?: string
 }
 
@@ -42,6 +50,7 @@ function formatLoanData(data: LoanFormInput) {
 
   return {
     lender_name: data.lender_name,
+    loan_type: data.loan_type || 'Other',
     principal: parseFloat(data.principal),
     current_balance: parseFloat(data.current_balance),
     interest_rate: parseFloat(data.interest_rate),
@@ -53,6 +62,7 @@ function formatLoanData(data: LoanFormInput) {
     monthly_payment_date: data.monthly_payment_date ? parseInt(data.monthly_payment_date) : null,
     emi_amount: emiAmount,
     status: data.status,
+    health_score: 75,
     notes: data.notes || null,
   }
 }
