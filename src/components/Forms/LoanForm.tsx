@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Button from '../UI/Button'
-import { LoanFormInput } from '../../lib/loansService'
+import { LoanFormInput, LoanType } from '../../lib/loansService'
 
 interface LoanFormProps {
   onSubmit: (data: LoanFormInput) => Promise<void>
@@ -13,6 +13,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   const [formData, setFormData] = useState<LoanFormInput>(
     initialData || {
       lender_name: '',
+      loan_type: 'Personal',
       principal: '',
       current_balance: '',
       interest_rate: '',
@@ -62,18 +63,35 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5 max-h-[80vh] overflow-y-auto">
-      {/* Lender Name */}
-      <div>
-        <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Lender Name</label>
-        <input
-          type="text"
-          name="lender_name"
-          value={formData.lender_name}
-          onChange={handleChange}
-          placeholder="e.g., HDFC Bank"
-          className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        />
-        {errors.lender_name && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.lender_name}</p>}
+      {/* Lender Name & Loan Type */}
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Lender Name</label>
+          <input
+            type="text"
+            name="lender_name"
+            value={formData.lender_name}
+            onChange={handleChange}
+            placeholder="e.g., HDFC Bank"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          />
+          {errors.lender_name && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.lender_name}</p>}
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Type</label>
+          <select
+            name="loan_type"
+            value={formData.loan_type || 'Personal'}
+            onChange={handleChange}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          >
+            <option value="Home">Home</option>
+            <option value="Personal">Personal</option>
+            <option value="Auto">Auto</option>
+            <option value="Education">Education</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
       </div>
 
       {/* Principal & Current Balance */}
@@ -111,16 +129,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       {/* Interest Rate & Type */}
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Rate (%)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Rate (%) p.a.</label>
           <input
             type="number"
             name="interest_rate"
             value={formData.interest_rate}
             onChange={handleChange}
-            placeholder="7.5"
+            placeholder="10.65"
             min="0"
             max="100"
-            step="0.1"
+            step="0.01"
             className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
           {errors.interest_rate && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.interest_rate}</p>}
