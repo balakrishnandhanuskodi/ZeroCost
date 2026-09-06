@@ -70,6 +70,7 @@ export default function LoanEMIPieChart({
 
       {/* Legend */}
       <div className="text-center w-full">
+        <div className="text-[10px] text-[var(--muted-foreground)] mb-0.5">Month 1 breakdown</div>
         <div className="text-[11px] text-[var(--muted-foreground)] mb-0.5">Interest: {Math.round(interestPercent)}%</div>
         <div className="text-[11px] font-semibold text-[var(--primary)]">
           ₹{Math.round(principalAmount)} | ₹{Math.round(interestAmount)}
