@@ -1,20 +1,11 @@
 import {
-  LayoutDashboard, ArrowLeftRight, PieChart, CreditCard, Target,
-  TrendingUp, BarChart2, Bot, Settings, Bell, ChevronLeft, ChevronRight,
+  LayoutDashboard, Bell, ChevronLeft, ChevronRight,
   LogOut, Wallet
 } from 'lucide-react'
-import { notifications } from '../data/mockData'
+import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
-  { id: 'budget', label: 'Budget', icon: PieChart },
-  { id: 'loans', label: 'Loans', icon: CreditCard },
-  { id: 'goals', label: 'Goals', icon: Target },
-  { id: 'savings', label: 'Savings', icon: TrendingUp },
-  { id: 'reports', label: 'Reports', icon: BarChart2 },
-  { id: 'ai-coach', label: 'AI Coach', icon: Bot },
-  { id: 'settings', label: 'Settings', icon: Settings },
 ]
 
 interface SidebarProps {
@@ -25,8 +16,29 @@ interface SidebarProps {
   onNotifications: () => void
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+function getAvatarColor(name: string): string {
+  const colors = [
+    'from-blue-500 to-cyan-500',
+    'from-purple-500 to-pink-500',
+    'from-green-500 to-emerald-500',
+    'from-orange-500 to-red-500',
+    'from-indigo-500 to-blue-500',
+  ]
+  const hash = name.charCodeAt(0) + name.charCodeAt(name.length - 1)
+  return colors[hash % colors.length]
+}
+
 export default function Sidebar({ active, onNavigate, collapsed, onToggle, onNotifications }: SidebarProps) {
-  const unread = notifications.filter(n => !n.read).length
+  const { user } = useAuth()
 
   return (
     <aside
@@ -35,13 +47,13 @@ export default function Sidebar({ active, onNavigate, collapsed, onToggle, onNot
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-[var(--border)]">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#16a34a] to-[#4f46e5] flex items-center justify-center flex-shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center flex-shrink-0">
           <Wallet size={18} className="text-white" />
         </div>
         {!collapsed && (
           <div>
-            <div className="font-display font-700 text-sm text-[var(--foreground)] leading-tight">FinPilot</div>
-            <div className="text-[10px] text-[var(--muted-foreground)] font-medium tracking-wide">AI Finance</div>
+            <div className="font-display font-700 text-sm text-[var(--foreground)] leading-tight">ZeroCost</div>
+            <div className="text-[10px] text-[var(--muted-foreground)] font-medium tracking-wide">Financial Hub</div>
           </div>
         )}
       </div>
@@ -54,7 +66,7 @@ export default function Sidebar({ active, onNavigate, collapsed, onToggle, onNot
             <button
               key={id}
               onClick={() => onNavigate(id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                 isActive
                   ? 'bg-[var(--primary)] text-white shadow-sm'
                   : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
@@ -63,11 +75,6 @@ export default function Sidebar({ active, onNavigate, collapsed, onToggle, onNot
             >
               <Icon size={18} className="flex-shrink-0" />
               {!collapsed && <span>{label}</span>}
-              {!collapsed && id === 'ai-coach' && (
-                <span className="ml-auto text-[9px] font-semibold bg-gradient-to-r from-[#16a34a] to-[#4f46e5] text-white px-1.5 py-0.5 rounded-full">
-                  AI
-                </span>
-              )}
             </button>
           )
         })}
@@ -82,26 +89,22 @@ export default function Sidebar({ active, onNavigate, collapsed, onToggle, onNot
         >
           <Bell size={18} className="flex-shrink-0" />
           {!collapsed && <span>Notifications</span>}
-          {unread > 0 && (
-            <span className={`${collapsed ? 'absolute top-1.5 right-1.5' : 'ml-auto'} bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center`}>
-              {unread}
-            </span>
-          )}
         </button>
 
-        {/* User */}
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#16a34a] to-[#4f46e5] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            BK
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-[var(--foreground)] truncate">Bala Kumar</div>
-              <div className="text-[10px] text-[var(--muted-foreground)] truncate">bala@finpilot.ai</div>
+        {/* User Profile - Real Data */}
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-2">
+            <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getAvatarColor(user.name)} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+              {getInitials(user.name)}
             </div>
-          )}
-          {!collapsed && <LogOut size={14} className="text-[var(--muted-foreground)] flex-shrink-0" />}
-        </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-semibold text-[var(--foreground)] truncate">{user.name}</div>
+                <div className="text-[10px] text-[var(--muted-foreground)] truncate">{user.email}</div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Collapse toggle */}
         <button
