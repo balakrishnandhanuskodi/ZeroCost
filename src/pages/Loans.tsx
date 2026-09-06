@@ -6,7 +6,7 @@ import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
 import EMIAnalysisDialog from '../components/Loans/EMIAnalysisDialog'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, createLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, createLoanPaymentSchedule, updateLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
@@ -112,7 +112,7 @@ export default function Loans() {
   }
 
   const handleEditLoan = async (formData: LoanFormInput) => {
-    if (!editingLoan) return
+    if (!editingLoan || !user) return
 
     setIsSubmitting(true)
     setError(null)
@@ -120,10 +120,28 @@ export default function Loans() {
     try {
       const updated = await updateLoan(editingLoan.id, formData)
       if (updated) {
+        // Regenerate and update payment schedule
+        const tenureMonths = formData.tenure_unit === 'years' ? parseInt(formData.tenure) * 12 : parseInt(formData.tenure)
+        const paymentSchedule = generatePaymentSchedule(
+          editingLoan.id,
+          parseFloat(formData.principal),
+          parseFloat(formData.interest_rate),
+          tenureMonths,
+          formData.first_emi_date,
+          parseFloat(formData.first_emi_amount),
+          formData.emis_paid_count ? parseInt(formData.emis_paid_count) : 0
+        )
+
+        await updateLoanPaymentSchedule(user.id, editingLoan.id, paymentSchedule)
+
+        // Reload payment history for the updated loan
+        const updatedHistory = await getLoanPaymentHistory(editingLoan.id)
+        setPaymentHistory(prev => ({ ...prev, [editingLoan.id]: updatedHistory }))
+
         setLoans(loans.map(l => l.id === editingLoan.id ? updated : l))
         setEditingLoan(null)
         setShowForm(false)
-        setSuccess('Loan updated successfully')
+        setSuccess('Loan updated successfully! Payment schedule regenerated.')
         setTimeout(() => setSuccess(null), 3000)
       }
     } catch (err) {

@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Button from '../UI/Button'
-import { LoanFormInput, LoanType } from '../../lib/loansService'
+import { LoanFormInput, LoanType, calculateEMI } from '../../lib/loansService'
 
 interface LoanFormProps {
   onSubmit: (data: LoanFormInput) => Promise<void>
@@ -28,6 +28,19 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   )
   const [errors, setErrors] = useState<Partial<LoanFormInput>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Calculate standard EMI for helper display
+  const standardEMI = useMemo(() => {
+    const principal = parseFloat(formData.principal)
+    const rate = parseFloat(formData.interest_rate)
+    const tenure = parseInt(formData.tenure)
+    const tenureUnit = formData.tenure_unit
+
+    if (!principal || !rate || !tenure) return null
+
+    const tenureMonths = tenureUnit === 'years' ? tenure * 12 : tenure
+    return Math.round(calculateEMI(principal, rate, tenureMonths) * 100) / 100
+  }, [formData.principal, formData.interest_rate, formData.tenure, formData.tenure_unit])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoanFormInput> = {}
@@ -251,6 +264,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             {errors.first_emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_amount}</p>}
           </div>
         </div>
+
+        {/* Standard EMI Helper */}
+        {standardEMI && (
+          <div className="mt-2 p-2 bg-[var(--secondary-soft)] rounded-lg border border-[var(--secondary)]">
+            <p className="text-[11px] text-[var(--muted-foreground)]">
+              <span className="font-medium text-[var(--secondary)]">💡 Calculated Standard EMI: ₹{standardEMI.toLocaleString('en-IN')}</span><br/>
+              <span className="text-[10px]">If your First EMI differs, it likely includes stub/pre-EMI interest. Remaining 59 payments will be ₹{standardEMI.toLocaleString('en-IN')} each.</span>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Payment Date & Status */}
