@@ -76,7 +76,8 @@ export default function Loans() {
           pendingFormData.first_emi_date,
           parseFloat(pendingFormData.emi_amount),
           parseFloat(pendingFormData.first_emi_amount),
-          pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0
+          pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0,
+          pendingFormData.first_payment_interest ? parseFloat(pendingFormData.first_payment_interest) : 0
         )
 
         console.log(`Creating ${paymentSchedule.length} payment records for loan ${newLoan.id}`)
@@ -137,7 +138,8 @@ export default function Loans() {
           formData.first_emi_date,
           parseFloat(formData.emi_amount),
           parseFloat(formData.first_emi_amount),
-          formData.emis_paid_count ? parseInt(formData.emis_paid_count) : 0
+          formData.emis_paid_count ? parseInt(formData.emis_paid_count) : 0,
+          formData.first_payment_interest ? parseFloat(formData.first_payment_interest) : 0
         )
 
         await updateLoanPaymentSchedule(user.id, editingLoan.id, paymentSchedule)
