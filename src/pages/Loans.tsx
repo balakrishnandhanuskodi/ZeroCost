@@ -247,7 +247,7 @@ export default function Loans() {
                       first_emi_date: editingLoan.first_emi_date,
                       first_emi_amount: editingLoan.first_emi_amount.toString(),
                       first_payment_interest: editingLoan.first_payment_interest?.toString() || '',
-                      emis_paid_count: editingLoan.emis_paid_count.toString(),
+                      emis_paid_count: editingLoan.emis_paid_count && editingLoan.emis_paid_count > 0 ? editingLoan.emis_paid_count.toString() : '',
                       last_payment_date: editingLoan.last_payment_date || '',
                       status: editingLoan.status,
                       notes: editingLoan.notes || '',
@@ -361,6 +361,13 @@ export default function Loans() {
                       <h3 className="font-display font-700 text-[15px] text-[var(--foreground)] truncate">{loan.lender_name}</h3>
                       <span className={`text-[11px] font-semibold px-0.5 py-0.5 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
                         {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
+                      </span>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                        loan.loan_type === 'Home'
+                          ? 'bg-[var(--info-soft)] text-[var(--info)]'
+                          : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                      }`}>
+                        {loan.loan_type}
                       </span>
                     </div>
                     <p className="text-[11px] text-[var(--muted-foreground)]">
@@ -488,7 +495,7 @@ export default function Loans() {
                       first_emi_date: editingLoan.first_emi_date,
                       first_emi_amount: editingLoan.first_emi_amount.toString(),
                       first_payment_interest: editingLoan.first_payment_interest?.toString() || '',
-                      emis_paid_count: editingLoan.emis_paid_count.toString(),
+                      emis_paid_count: editingLoan.emis_paid_count && editingLoan.emis_paid_count > 0 ? editingLoan.emis_paid_count.toString() : '',
                       last_payment_date: editingLoan.last_payment_date || '',
                       status: editingLoan.status,
                       notes: editingLoan.notes || '',

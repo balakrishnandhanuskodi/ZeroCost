@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { analyzeFirstEMI, generatePaymentSchedule, FirstEMIAnalysis, PaymentScheduleItem } from '../../lib/loansService'
 import Button from '../UI/Button'
+import { ChevronLeft } from 'lucide-react'
 
 interface EMIAnalysisDialogProps {
   principal: number
@@ -26,6 +28,8 @@ export default function EMIAnalysisDialog({
   onConfirm,
   onCancel
 }: EMIAnalysisDialogProps) {
+  const [step, setStep] = useState<1 | 2>(1)
+
   const analysis = analyzeFirstEMI(principal, interestRate, tenure, tenureUnit, firstEMIAmount)
   const tenureMonths = tenureUnit === 'years' ? tenure * 12 : tenure
   const schedule = generatePaymentSchedule(
@@ -42,116 +46,226 @@ export default function EMIAnalysisDialog({
   const lastPaidPayment = emirsPaidCount > 0 ? schedule[emirsPaidCount - 1] : null
   const expectedBalance = lastPaidPayment?.balance_after_payment || principal
   const balanceDifference = Math.abs(expectedBalance - currentBalance)
-  const hasBalanceDiscrepancy = balanceDifference > 1 // Allow 1 rupee difference
+  const hasBalanceDiscrepancy = balanceDifference > 1
 
   const handleConfirm = () => {
     onConfirm(schedule)
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start md:items-center justify-center z-50 overflow-y-auto p-2 md:p-0">
-      <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[650px] max-h-[90vh] overflow-y-auto p-4 md:p-6 shadow-2xl my-2 md:my-0">
-        <h2 className="font-display font-700 text-base text-[var(--foreground)] mb-4">EMI Analysis & Validation</h2>
+  const handleNextStep = () => {
+    setStep(2)
+  }
 
-        {/* First EMI Analysis */}
-        <div className="mb-4 p-3 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
-          <p className="text-[12px] font-semibold text-[var(--primary)] mb-2">First EMI Breakdown</p>
-          <div className="space-y-1">
-            <div className="flex justify-between text-[11px]">
-              <span className="text-[var(--muted-foreground)]">Standard EMI:</span>
-              <span className="font-semibold text-[var(--foreground)]">₹{analysis.standardEMI.toLocaleString('en-IN')}</span>
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 overflow-y-auto p-2 md:p-0">
+      <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[700px] max-h-[95vh] overflow-y-auto p-4 md:p-6 shadow-2xl my-4 md:my-0">
+        {/* Step Indicator */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-[12px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+                Step {step} of 2
+              </p>
+              <h2 className="font-display font-700 text-lg text-[var(--foreground)] mt-1">
+                {step === 1 ? 'Review EMI Details' : 'Validate & Confirm'}
+              </h2>
             </div>
-            <div className="flex justify-between text-[11px]">
-              <span className="text-[var(--muted-foreground)]">Your First EMI:</span>
-              <span className="font-semibold text-[var(--foreground)]">₹{analysis.firstEMIAmount.toLocaleString('en-IN')}</span>
-            </div>
-            {analysis.hasStubPeriod && (
-              <div className="flex justify-between text-[11px] pt-1 border-t border-[var(--primary)]">
-                <span className="text-[var(--muted-foreground)]">Pre-EMI Interest (Stub):</span>
-                <span className="font-semibold text-[var(--warning)]">₹{analysis.stubInterest.toLocaleString('en-IN')}</span>
-              </div>
+            {step === 2 && (
+              <button
+                onClick={() => setStep(1)}
+                className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors"
+                title="Back to Step 1"
+              >
+                <ChevronLeft size={18} className="text-[var(--muted-foreground)]" />
+              </button>
             )}
           </div>
-          <p className="text-[11px] text-[var(--primary)] mt-2 leading-relaxed">
-            ✓ {analysis.note}
-          </p>
+
+          {/* Progress Bar */}
+          <div className="w-full h-1 bg-[var(--border)] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[var(--primary)] transition-all duration-300"
+              style={{ width: step === 1 ? '50%' : '100%' }}
+            />
+          </div>
         </div>
 
-        {/* Balance Discrepancy Warning (if any) */}
-        {hasBalanceDiscrepancy && emirsPaidCount > 0 && (
-          <div className="mb-4 p-3 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
-            <p className="text-[12px] font-semibold text-[var(--warning)] mb-2">⚠️ Balance Mismatch Detected</p>
-            <div className="space-y-1 text-[11px]">
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">You entered balance:</span>
-                <span className="font-semibold">₹{currentBalance.toLocaleString('en-IN')}</span>
+        {/* STEP 1: Review EMI Details */}
+        {step === 1 && (
+          <div className="space-y-4">
+            {/* First EMI Analysis */}
+            <div className="p-4 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
+              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">📊 First EMI Breakdown</p>
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-[12px] text-[var(--muted-foreground)]">Standard EMI:</span>
+                  <span className="text-[13px] font-bold text-[var(--foreground)]">
+                    ₹{analysis.standardEMI.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[12px] text-[var(--muted-foreground)]">Your First EMI:</span>
+                  <span className="text-[13px] font-bold text-[var(--foreground)]">
+                    ₹{analysis.firstEMIAmount.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                {analysis.hasStubPeriod && (
+                  <div className="flex justify-between items-center pt-2 border-t border-[var(--primary)] border-opacity-30">
+                    <span className="text-[12px] text-[var(--muted-foreground)]">Pre-EMI Interest (Stub):</span>
+                    <span className="text-[13px] font-bold text-[var(--warning)]">
+                      ₹{analysis.stubInterest.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Calculated balance (after {emirsPaidCount} EMIs):</span>
-                <span className="font-semibold">₹{Math.round(expectedBalance).toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between text-[var(--warning)]">
-                <span className="text-[var(--muted-foreground)]">Difference:</span>
-                <span className="font-semibold">₹{Math.round(balanceDifference).toLocaleString('en-IN')}</span>
+              <p className="text-[12px] text-[var(--primary)] mt-3 leading-relaxed bg-white/10 p-2 rounded">
+                ✓ {analysis.note}
+              </p>
+            </div>
+
+            {/* Payment Schedule Summary */}
+            <div className="p-4 bg-[var(--muted)] rounded-lg">
+              <p className="text-[13px] font-semibold text-[var(--foreground)] mb-3">📅 Payment Schedule</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <p className="text-[11px] text-[var(--muted-foreground)] uppercase font-medium">Total EMIs</p>
+                  <p className="text-[14px] font-bold text-[var(--foreground)]">{tenureMonths}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-[var(--muted-foreground)] uppercase font-medium">First EMI Date</p>
+                  <p className="text-[14px] font-bold text-[var(--foreground)]">
+                    {new Date(firstEMIDate).toLocaleDateString('en-IN')}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-[var(--muted-foreground)] uppercase font-medium">Last EMI Date</p>
+                  <p className="text-[14px] font-bold text-[var(--foreground)]">
+                    {schedule.length > 0
+                      ? new Date(schedule[schedule.length - 1].due_date).toLocaleDateString('en-IN')
+                      : '-'}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-[var(--muted-foreground)] uppercase font-medium">Already Paid</p>
+                  <p className="text-[14px] font-bold text-[var(--success)]">{emirsPaidCount} EMIs</p>
+                </div>
               </div>
             </div>
-            <p className="text-[11px] text-[var(--muted-foreground)] mt-2">
-              This could mean: (1) You paid extra principal, (2) Payments were on different dates, or (3) Interest rates vary.
-            </p>
-            <p className="text-[11px] font-semibold text-[var(--warning)] mt-2">
-              We'll use your entered balance. System can be adjusted later if needed.
-            </p>
+
+            {/* Action Button */}
+            <div className="flex gap-2 pt-4 border-t border-[var(--border)]">
+              <Button
+                variant="outline"
+                onClick={onCancel}
+                className="flex-1 text-sm py-2.5"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleNextStep}
+                className="flex-1 text-sm py-2.5"
+              >
+                Next: Review Balance →
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Payment Schedule Summary */}
-        <div className="mb-4 p-3 bg-[var(--muted)] rounded-lg">
-          <p className="text-[12px] font-semibold text-[var(--foreground)] mb-2">Payment Schedule Summary</p>
-          <div className="space-y-1 text-[11px]">
-            <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Total EMIs:</span>
-              <span className="font-semibold">{tenureMonths}</span>
+        {/* STEP 2: Validate & Confirm */}
+        {step === 2 && (
+          <div className="space-y-4">
+            {/* Balance Check */}
+            {hasBalanceDiscrepancy && emirsPaidCount > 0 ? (
+              <div className="p-4 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
+                <p className="text-[13px] font-semibold text-[var(--warning)] mb-3">⚠️ Balance Mismatch Detected</p>
+                <div className="space-y-2.5 mb-3">
+                  <div className="flex justify-between">
+                    <span className="text-[12px] text-[var(--muted-foreground)]">You entered:</span>
+                    <span className="text-[13px] font-bold text-[var(--foreground)]">
+                      ₹{currentBalance.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[12px] text-[var(--muted-foreground)]">System calculated (after {emirsPaidCount} EMIs):</span>
+                    <span className="text-[13px] font-bold text-[var(--foreground)]">
+                      ₹{Math.round(expectedBalance).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-[var(--warning)] border-opacity-30">
+                    <span className="text-[12px] text-[var(--muted-foreground)]">Difference:</span>
+                    <span className="text-[13px] font-bold text-[var(--warning)]">
+                      ₹{Math.round(balanceDifference).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-white/10 p-2.5 rounded space-y-1.5">
+                  <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                    This difference could occur due to:
+                  </p>
+                  <ul className="text-[11px] text-[var(--muted-foreground)] space-y-1 ml-2">
+                    <li>• Extra principal payments made</li>
+                    <li>• Different payment dates or partial payments</li>
+                    <li>• Variable interest rates</li>
+                  </ul>
+                </div>
+                <p className="text-[11px] font-semibold text-[var(--warning)] mt-3 bg-white/5 p-2 rounded">
+                  ℹ️ We'll use your entered balance. You can adjust it later if needed.
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 bg-[var(--success-soft)] border border-[var(--success)] rounded-lg">
+                <p className="text-[13px] font-semibold text-[var(--success)] mb-2">✓ Balance Verified</p>
+                <p className="text-[12px] text-[var(--muted-foreground)]">
+                  Your entered balance matches the calculated balance. Everything looks good!
+                </p>
+              </div>
+            )}
+
+            {/* Summary */}
+            <div className="p-4 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
+              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">📋 Loan Summary</p>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-[12px] text-[var(--muted-foreground)]">Principal Amount:</span>
+                  <span className="text-[13px] font-bold text-[var(--foreground)]">
+                    ₹{principal.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[12px] text-[var(--muted-foreground)]">Interest Rate:</span>
+                  <span className="text-[13px] font-bold text-[var(--foreground)]">{interestRate.toFixed(2)}% p.a.</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[12px] text-[var(--muted-foreground)]">Tenure:</span>
+                  <span className="text-[13px] font-bold text-[var(--foreground)]">{tenureMonths} months</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-[var(--primary)] border-opacity-30">
+                  <span className="text-[12px] text-[var(--muted-foreground)]">Remaining EMIs:</span>
+                  <span className="text-[13px] font-bold text-[var(--info)]">{tenureMonths - emirsPaidCount}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">First EMI Date:</span>
-              <span className="font-semibold">{new Date(firstEMIDate).toLocaleDateString('en-IN')}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Last EMI Date:</span>
-              <span className="font-semibold">
-                {schedule.length > 0
-                  ? new Date(schedule[schedule.length - 1].due_date).toLocaleDateString('en-IN')
-                  : '-'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">EMIs Already Marked Paid:</span>
-              <span className="font-semibold text-[var(--success)]">{emirsPaidCount}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Remaining EMIs:</span>
-              <span className="font-semibold text-[var(--info)]">{tenureMonths - emirsPaidCount}</span>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-4 border-t border-[var(--border)]">
+              <Button
+                variant="outline"
+                onClick={() => setStep(1)}
+                className="flex-1 text-sm py-2.5"
+              >
+                ← Back
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleConfirm}
+                className="flex-1 text-sm py-2.5"
+              >
+                ✓ Confirm & Create Loan
+              </Button>
             </div>
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-2 pt-3 border-t border-[var(--border)]">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            className="flex-1 text-xs py-2"
-          >
-            Back to Form
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleConfirm}
-            className="flex-1 text-xs py-2"
-          >
-            Confirm & Create Loan
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -438,36 +438,66 @@ export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecor
     }
 
     const payments = data || []
-    let principalPaid = 0
-    let interestPaid = 0
     const totalPaid = payments.reduce((sum, p) => sum + (p.total_payment || 0), 0)
 
-    // Use official first payment breakdown if available
-    const hasOfficialBreakdown = loanRecord && loanRecord.first_payment_interest && loanRecord.first_payment_principal
+    if (!loanRecord || totalPaid === 0) {
+      return { principalPaid: 0, interestPaid: 0, totalPaid }
+    }
 
-    if (loanRecord && payments.length > 0) {
-      console.log('Payment breakdown calculation:', {
+    // DIFFERENTIATE BY LOAN TYPE:
+    // Personal Loans: Use fixed amortization schedule (sum individual payment breakdowns)
+    // Home/Mortgage/LAP: Use actual ledger balance (current balance is ground truth)
+    const isHomeOrMortgage = ['Home', 'Mortgage', 'LAP'].includes(loanRecord.loan_type)
+
+    if (isHomeOrMortgage) {
+      // HOME/MORTGAGE LOGIC: Principal Paid = Sanctioned Principal - Current Balance
+      // Interest Paid = Total Amount Paid - Principal Paid
+      const principalPaid = Math.max(0, loanRecord.principal - loanRecord.current_balance)
+      const interestPaid = Math.max(0, totalPaid - principalPaid)
+
+      console.log('Home/Mortgage Loan Breakdown (Ledger-Based):', {
         loanId,
-        first_payment_interest: loanRecord.first_payment_interest,
-        first_payment_principal: loanRecord.first_payment_principal,
-        hasOfficialBreakdown,
+        loanType: loanRecord.loan_type,
+        sanctionedPrincipal: loanRecord.principal,
+        currentBalance: loanRecord.current_balance,
+        principalPaid,
+        totalPaid,
+        interestPaid,
+        principalPercent: Math.round((principalPaid / totalPaid) * 100),
         paymentsCount: payments.length
       })
-    }
 
-    for (const payment of payments) {
-      if (payment.payment_number === 1 && hasOfficialBreakdown) {
-        // Use official breakdown for payment 1
-        principalPaid += loanRecord!.first_payment_principal || 0
-        interestPaid += loanRecord!.first_payment_interest || 0
-      } else {
-        // Use calculated values for other payments
-        principalPaid += payment.principal_amount || 0
-        interestPaid += payment.interest_amount || 0
+      return { principalPaid, interestPaid, totalPaid }
+    } else {
+      // PERSONAL LOAN LOGIC: Sum individual EMI breakdowns from amortization schedule
+      let principalPaid = 0
+      let interestPaid = 0
+      const hasOfficialBreakdown = loanRecord.first_payment_interest && loanRecord.first_payment_principal
+
+      for (const payment of payments) {
+        if (payment.payment_number === 1 && hasOfficialBreakdown) {
+          // Use official breakdown for payment 1 from repayment schedule
+          principalPaid += loanRecord.first_payment_principal || 0
+          interestPaid += loanRecord.first_payment_interest || 0
+        } else {
+          // Use calculated values from amortization for other payments
+          principalPaid += payment.principal_amount || 0
+          interestPaid += payment.interest_amount || 0
+        }
       }
-    }
 
-    return { principalPaid, interestPaid, totalPaid }
+      console.log('Personal Loan Breakdown (Schedule-Based):', {
+        loanId,
+        loanType: loanRecord.loan_type,
+        principalPaid,
+        totalPaid,
+        interestPaid,
+        principalPercent: Math.round((principalPaid / totalPaid) * 100),
+        paymentsCount: payments.length
+      })
+
+      return { principalPaid, interestPaid, totalPaid }
+    }
   } catch (err) {
     console.error('Failed to fetch payment breakdown:', err)
     return { principalPaid: 0, interestPaid: 0, totalPaid: 0 }

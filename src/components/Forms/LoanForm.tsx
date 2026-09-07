@@ -21,11 +21,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       tenure: '',
       tenure_unit: 'months',
       start_date: '',
+      end_date: '',
+      monthly_payment_date: '',
       emi_amount: '',
       first_emi_date: '',
       first_emi_amount: '',
       first_payment_interest: '',
+      emis_paid_count: '',
+      last_payment_date: '',
       status: 'active',
+      notes: '',
     }
   )
   const [errors, setErrors] = useState<Partial<LoanFormInput>>({})
