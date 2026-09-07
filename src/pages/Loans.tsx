@@ -362,6 +362,13 @@ export default function Loans() {
                       <span className={`text-[11px] font-semibold px-0.5 py-0.5 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
                         {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
                       </span>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                        loan.loan_type === 'Home'
+                          ? 'bg-[var(--info-soft)] text-[var(--info)]'
+                          : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                      }`}>
+                        {loan.loan_type}
+                      </span>
                     </div>
                     <p className="text-[11px] text-[var(--muted-foreground)]">
                       {new Date(loan.start_date).toLocaleDateString()}
