@@ -11,13 +11,18 @@ interface ThisMonthEMIsProps {
   loans: LoanRecord[]
 }
 
+interface PaymentDueWithStatus extends PaymentDue {
+  isPaid: boolean
+  paymentNumber: number
+}
+
 export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
   const today = new Date()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
 
-  // Get all pending payments due this month
-  const thisMonthPayments: PaymentDue[] = []
+  // Get ALL payments due this month (both paid and pending)
+  const thisMonthPayments: PaymentDueWithStatus[] = []
 
   loans.forEach(loan => {
     const firstEMIDate = new Date(loan.first_emi_date)
@@ -28,15 +33,15 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
       dueDate.setMonth(dueDate.getMonth() + (i - 1))
 
       if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
-        if (i <= loan.emis_paid_count) {
-          continue // Skip already paid EMIs
-        }
+        const isPaid = i <= loan.emis_paid_count
 
         thisMonthPayments.push({
           lenderName: loan.lender_name,
           emiAmount: loan.emi_amount || 0,
           dueDate: dueDate.toISOString().split('T')[0],
-          loanId: loan.id
+          loanId: loan.id,
+          isPaid,
+          paymentNumber: i
         })
       }
     }
@@ -86,13 +91,26 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
             {thisMonthPayments.map((payment, idx) => (
               <div
                 key={`${payment.loanId}-${idx}`}
-                className="bg-[var(--muted)] rounded-lg p-2 flex items-center justify-between"
+                className={`rounded-lg p-2 flex items-center justify-between ${
+                  payment.isPaid
+                    ? 'bg-[var(--success-soft)] border border-[var(--success)]'
+                    : 'bg-[var(--muted)] border border-[var(--border)]'
+                }`}
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold text-[var(--foreground)] truncate">
-                    {payment.lenderName}
-                  </p>
-                  <p className="text-[10px] text-[var(--muted-foreground)]">
+                  <div className="flex items-center gap-1">
+                    <p className="text-[11px] font-semibold text-[var(--foreground)] truncate">
+                      {payment.lenderName}
+                    </p>
+                    <span className={`text-[10px] font-semibold px-1 rounded whitespace-nowrap ${
+                      payment.isPaid
+                        ? 'bg-[var(--success)] text-white'
+                        : 'bg-[var(--warning)] text-white'
+                    }`}>
+                      {payment.isPaid ? '✓ Paid' : '⏳ Pending'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[var(--muted-foreground)] mt-0.5">
                     Due: {formatDate(payment.dueDate)}
                   </p>
                 </div>
