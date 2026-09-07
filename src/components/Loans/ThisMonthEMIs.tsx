@@ -71,7 +71,7 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
 
       {thisMonthPayments.length === 0 ? (
         <div className="bg-[var(--success-soft)] border border-[var(--success)] rounded-lg p-2 text-center">
-          <p className="text-[12px] font-semibold text-[var(--success)] mb-0.5">✓ All Clear</p>
+          <p className="text-[12px] font-semibold text-[var(--success)] mb-0.5">All Clear</p>
           <p className="text-[11px] text-[var(--muted-foreground)]">No EMIs due this month</p>
         </div>
       ) : (
@@ -107,7 +107,7 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
                         ? 'bg-[var(--success)] text-white'
                         : 'bg-[var(--warning)] text-white'
                     }`}>
-                      {payment.isPaid ? '✓ Paid' : '⏳ Pending'}
+                      {payment.isPaid ? 'Paid' : 'Pending'}
                     </span>
                   </div>
                   <p className="text-[10px] text-[var(--muted-foreground)] mt-0.5">

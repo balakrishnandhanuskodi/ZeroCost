@@ -95,7 +95,7 @@ export default function EMIAnalysisDialog({
           <div className="space-y-4">
             {/* First EMI Analysis */}
             <div className="p-4 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
-              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">📊 First EMI Breakdown</p>
+              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">First EMI Breakdown</p>
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-[var(--muted-foreground)]">Standard EMI:</span>
@@ -119,13 +119,13 @@ export default function EMIAnalysisDialog({
                 )}
               </div>
               <p className="text-[12px] text-[var(--primary)] mt-3 leading-relaxed bg-white/10 p-2 rounded">
-                ✓ {analysis.note}
+                {analysis.note}
               </p>
             </div>
 
             {/* Payment Schedule Summary */}
             <div className="p-4 bg-[var(--muted)] rounded-lg">
-              <p className="text-[13px] font-semibold text-[var(--foreground)] mb-3">📅 Payment Schedule</p>
+              <p className="text-[13px] font-semibold text-[var(--foreground)] mb-3">Payment Schedule</p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <p className="text-[11px] text-[var(--muted-foreground)] uppercase font-medium">Total EMIs</p>
@@ -178,7 +178,7 @@ export default function EMIAnalysisDialog({
             {/* Balance Check */}
             {hasBalanceDiscrepancy && emirsPaidCount > 0 ? (
               <div className="p-4 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
-                <p className="text-[13px] font-semibold text-[var(--warning)] mb-3">⚠️ Balance Mismatch Detected</p>
+                <p className="text-[13px] font-semibold text-[var(--warning)] mb-3">Balance Mismatch Detected</p>
                 <div className="space-y-2.5 mb-3">
                   <div className="flex justify-between">
                     <span className="text-[12px] text-[var(--muted-foreground)]">You entered:</span>
@@ -210,12 +210,12 @@ export default function EMIAnalysisDialog({
                   </ul>
                 </div>
                 <p className="text-[11px] font-semibold text-[var(--warning)] mt-3 bg-white/5 p-2 rounded">
-                  ℹ️ We'll use your entered balance. You can adjust it later if needed.
+                  We'll use your entered balance. You can adjust it later if needed.
                 </p>
               </div>
             ) : (
               <div className="p-4 bg-[var(--success-soft)] border border-[var(--success)] rounded-lg">
-                <p className="text-[13px] font-semibold text-[var(--success)] mb-2">✓ Balance Verified</p>
+                <p className="text-[13px] font-semibold text-[var(--success)] mb-2">Balance Verified</p>
                 <p className="text-[12px] text-[var(--muted-foreground)]">
                   Your entered balance matches the calculated balance. Everything looks good!
                 </p>
@@ -224,7 +224,7 @@ export default function EMIAnalysisDialog({
 
             {/* Summary */}
             <div className="p-4 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
-              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">📋 Loan Summary</p>
+              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">Loan Summary</p>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-[12px] text-[var(--muted-foreground)]">Principal Amount:</span>
@@ -261,7 +261,7 @@ export default function EMIAnalysisDialog({
                 onClick={handleConfirm}
                 className="flex-1 text-sm py-2.5"
               >
-                ✓ Confirm & Create Loan
+                Confirm & Create Loan
               </Button>
             </div>
           </div>

@@ -93,7 +93,7 @@ export default function DashboardEMISplit({
       {/* Insight */}
       <div className="mt-2 p-2 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
         <p className="text-[12px] text-[var(--muted-foreground)] leading-relaxed">
-          <span className="font-semibold text-[var(--primary)]">💡 Key Insight:</span> Of your ₹{totalMonthlyEMI.toLocaleString('en-IN')} monthly payment, only <span className="font-bold text-[var(--primary)]">₹{totalPrincipalPayment.toLocaleString('en-IN')}</span> reduces your debt. The rest ({Math.round(interestPercent)}%) goes to interest.
+          <span className="font-semibold text-[var(--primary)]">Key Insight:</span> Of your ₹{totalMonthlyEMI.toLocaleString('en-IN')} monthly payment, only <span className="font-bold text-[var(--primary)]">₹{totalPrincipalPayment.toLocaleString('en-IN')}</span> reduces your debt. The rest ({Math.round(interestPercent)}%) goes to interest.
         </p>
       </div>
     </div>

@@ -86,15 +86,15 @@ export default function Register() {
         </p>
         <div className="mt-8 space-y-4 text-blue-100">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm">✓</div>
+            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm text-white font-bold">+</div>
             <span>Track all your loans in one place</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm">✓</div>
+            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm text-white font-bold">+</div>
             <span>Intelligent interest calculations</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm">✓</div>
+            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm text-white font-bold">+</div>
             <span>AI-powered financial recommendations</span>
           </div>
         </div>

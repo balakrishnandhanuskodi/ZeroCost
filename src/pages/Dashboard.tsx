@@ -74,7 +74,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="font-display font-700 text-xl md:text-2xl text-[var(--foreground)]">
-          Welcome back, {user?.name}! 👋
+          Welcome back, {user?.name}!
         </h1>
         <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
           {user?.email}

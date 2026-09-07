@@ -340,7 +340,7 @@ export async function createLoanPaymentSchedule(userId: string, loanId: string, 
   console.log('createLoanPaymentSchedule called:', { isSupabaseConfigured, hasSupabase: !!supabase, scheduleLength: schedule.length })
 
   if (!isSupabaseConfigured || !supabase) {
-    console.warn('⚠️ Supabase not configured, skipping payment record creation', { isSupabaseConfigured, supabase })
+    console.warn('Supabase not configured, skipping payment record creation', { isSupabaseConfigured, supabase })
     return true // Skip for localStorage fallback
   }
 

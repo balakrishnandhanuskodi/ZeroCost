@@ -94,7 +94,7 @@ export default function EMISplitCard({
       {/* Info Message */}
       <div className="pt-1 border-t border-[var(--border)]">
         <p className={`${labelClass} text-[var(--muted-foreground)] leading-relaxed`}>
-          💡 Each month, {Math.round(principalPercent)}% goes to reducing your debt, {Math.round(interestPercent)}% goes to interest
+          Each month, {Math.round(principalPercent)}% goes to reducing your debt, {Math.round(interestPercent)}% goes to interest
         </p>
       </div>
     </div>

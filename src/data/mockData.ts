@@ -137,7 +137,7 @@ export const notifications = [
 export const aiMessages: Array<{ role: 'user' | 'assistant'; content: string; time: string }> = [
   {
     role: 'assistant',
-    content: "Good morning, Bala! 👋 I've analyzed your finances for August 2026. Your health score is 74/100 — solid but there's room to optimize. What would you like to explore?",
+    content: "Good morning, Bala! I've analyzed your finances for August 2026. Your health score is 74/100 — solid but there's room to optimize. What would you like to explore?",
     time: '09:00 AM',
   },
 ]

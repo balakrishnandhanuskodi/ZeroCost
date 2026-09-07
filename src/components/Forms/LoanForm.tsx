@@ -228,7 +228,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       <div>
         <div className="mb-2 p-2 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
           <p className="text-[11px] text-[var(--muted-foreground)]">
-            <span className="font-semibold text-[var(--primary)]">📌 EMI & First Payment Details</span><br/>
+            <span className="font-semibold text-[var(--primary)]">EMI & First Payment Details</span><br/>
             Enter the standard EMI for all 60 payments. If your first payment differs (stub interest), enter that amount separately.
           </p>
         </div>
@@ -344,7 +344,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       <div>
         <div className="mb-2 p-2 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
           <p className="text-[11px] text-[var(--muted-foreground)]">
-            <span className="font-semibold text-[var(--warning)]">📊 Already Paying? (Optional)</span><br/>
+            <span className="font-semibold text-[var(--warning)]">Already Paying? (Optional)</span><br/>
             If you've already paid some EMIs, enter the count and last payment date. System will mark them as paid.
           </p>
         </div>
