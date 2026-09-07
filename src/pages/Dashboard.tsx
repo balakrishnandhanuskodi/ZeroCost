@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { getLoansByUser, calculateEMI, LoanRecord } from '../lib/loansService'
 import DashboardEMISplit from '../components/Loans/DashboardEMISplit'
+import ThisMonthEMIs from '../components/Loans/ThisMonthEMIs'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -103,14 +104,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* EMI Split Card */}
+      {/* EMI Split Card & This Month's EMIs */}
       {loans.length > 0 && (
-        <div className="mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <DashboardEMISplit
             totalMonthlyEMI={totalEMI}
             totalPrincipalPayment={Math.round(totalPrincipalInEMI)}
             totalInterestPayment={Math.round(totalInterestInEMI)}
           />
+          <ThisMonthEMIs loans={loans} />
         </div>
       )}
 
