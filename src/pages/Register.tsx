@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import Button from '../components/UI/Button'
 import Input from '../components/UI/Input'
 import Alert from '../components/UI/Alert'
-import { Wallet } from 'lucide-react'
+import { Wallet, Check } from 'lucide-react'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -86,15 +86,21 @@ export default function Register() {
         </p>
         <div className="mt-8 space-y-4 text-blue-100">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm text-white font-bold">+</div>
+            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center">
+              <Check size={14} className="text-white" strokeWidth={3} />
+            </div>
             <span>Track all your loans in one place</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm text-white font-bold">+</div>
+            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center">
+              <Check size={14} className="text-white" strokeWidth={3} />
+            </div>
             <span>Intelligent interest calculations</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center text-sm text-white font-bold">+</div>
+            <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center">
+              <Check size={14} className="text-white" strokeWidth={3} />
+            </div>
             <span>AI-powered financial recommendations</span>
           </div>
         </div>

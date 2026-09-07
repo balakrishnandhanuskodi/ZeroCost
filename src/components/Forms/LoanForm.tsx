@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pin } from 'lucide-react'
 import Button from '../UI/Button'
 import { LoanFormInput, LoanType } from '../../lib/loansService'
 
@@ -228,7 +229,10 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
       <div>
         <div className="mb-2 p-2 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
           <p className="text-[11px] text-[var(--muted-foreground)]">
-            <span className="font-semibold text-[var(--primary)]">EMI & First Payment Details</span><br/>
+            <span className="font-semibold text-[var(--primary)] flex items-center gap-1.5 mb-1">
+              <Pin size={14} className="text-[var(--primary)]" />
+              EMI & First Payment Details
+            </span><br/>
             Enter the standard EMI for all 60 payments. If your first payment differs (stub interest), enter that amount separately.
           </p>
         </div>
