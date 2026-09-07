@@ -438,6 +438,16 @@ export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecor
     // Use official first payment breakdown if available
     const hasOfficialBreakdown = loanRecord && loanRecord.first_payment_interest && loanRecord.first_payment_principal
 
+    if (loanRecord && payments.length > 0) {
+      console.log('Payment breakdown calculation:', {
+        loanId,
+        first_payment_interest: loanRecord.first_payment_interest,
+        first_payment_principal: loanRecord.first_payment_principal,
+        hasOfficialBreakdown,
+        paymentsCount: payments.length
+      })
+    }
+
     for (const payment of payments) {
       if (payment.payment_number === 1 && hasOfficialBreakdown) {
         // Use official breakdown for payment 1
