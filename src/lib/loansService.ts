@@ -167,7 +167,8 @@ export function generatePaymentSchedule(
   firstEMIDate: string,
   emiAmount: number,
   firstEMIAmount: number,
-  emirsPaidCount: number = 0
+  emirsPaidCount: number = 0,
+  firstPaymentInterest: number = 0
 ): PaymentScheduleItem[] {
   const monthlyRate = rate / 100 / 12
   const schedule: PaymentScheduleItem[] = []
@@ -180,15 +181,21 @@ export function generatePaymentSchedule(
     const dueDate = new Date(firstDate)
     dueDate.setMonth(dueDate.getMonth() + (i - 1))
 
-    const interestAmount = Math.round(balance * monthlyRate * 100) / 100
+    let interestAmount = Math.round(balance * monthlyRate * 100) / 100
     let principalAmount: number
     let totalPayment: number
     const standardEMI = Math.round(emiAmount * 100) / 100
 
     if (i === 1) {
-      // First payment - use firstEMIAmount (may include stub interest)
+      // First payment - use official interest if provided, otherwise calculate
+      if (firstPaymentInterest > 0) {
+        interestAmount = Math.round(firstPaymentInterest * 100) / 100
+        principalAmount = firstEMIAmount - interestAmount
+      } else {
+        totalPayment = firstEMIAmount
+        principalAmount = totalPayment - interestAmount
+      }
       totalPayment = firstEMIAmount
-      principalAmount = totalPayment - interestAmount
     } else {
       // Subsequent payments - use standard EMI entered by user
       totalPayment = standardEMI
