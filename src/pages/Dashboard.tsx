@@ -38,12 +38,36 @@ export default function Dashboard() {
     return sum + (loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths))
   }, 0)
 
-  // Calculate EMI split
-  const totalPrincipalInEMI = loans.reduce((sum, loan) => {
-    const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
-    return sum + (tenureMonths > 0 ? loan.principal / tenureMonths : 0)
-  }, 0)
-  const totalInterestInEMI = totalEMI - totalPrincipalInEMI
+  // Calculate this month's EMI split (using Payment 1 as reference for upcoming EMIs)
+  // This gives accurate principal vs interest breakdown for the current EMI cycle
+  const getThisMonthEMISplit = () => {
+    let totalPrincipal = 0
+    let totalInterest = 0
+
+    loans.forEach(loan => {
+      const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
+
+      // For Payment 1: use official breakdown if available
+      if (loan.first_payment_interest && loan.first_payment_principal) {
+        totalInterest += loan.first_payment_interest
+        totalPrincipal += loan.first_payment_principal
+      } else {
+        // Fallback: calculate using reducing balance for first month
+        const monthlyRate = loan.interest_rate / 100 / 12
+        const monthlyInterest = Math.round(loan.principal * monthlyRate * 100) / 100
+        const monthlyPrincipal = (loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths)) - monthlyInterest
+
+        totalInterest += monthlyInterest
+        totalPrincipal += monthlyPrincipal
+      }
+    })
+
+    return { totalPrincipal, totalInterest }
+  }
+
+  const emiSplit = getThisMonthEMISplit()
+  const totalPrincipalInEMI = emiSplit.totalPrincipal
+  const totalInterestInEMI = emiSplit.totalInterest
 
   return (
     <div className="p-6 pb-20 md:pb-8 animate-fade-in">
