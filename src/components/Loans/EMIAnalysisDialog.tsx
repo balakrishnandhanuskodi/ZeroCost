@@ -57,8 +57,8 @@ export default function EMIAnalysisDialog({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 overflow-y-auto p-2 md:p-0">
-      <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl w-full md:w-[700px] max-h-[95vh] overflow-y-auto p-4 md:p-6 shadow-2xl my-4 md:my-0">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[var(--card)] rounded-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto p-4 md:p-6 shadow-2xl">
         {/* Step Indicator */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
