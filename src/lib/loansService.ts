@@ -427,7 +427,7 @@ export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecor
   try {
     const { data, error } = await supabase
       .from('loan_payments')
-      .select('payment_number, principal_amount, interest_amount, total_payment')
+      .select('total_payment')
       .eq('loan_id', loanId)
       .eq('status', 'paid')
       .order('payment_number', { ascending: true })
@@ -438,36 +438,29 @@ export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecor
     }
 
     const payments = data || []
-    let principalPaid = 0
-    let interestPaid = 0
     const totalPaid = payments.reduce((sum, p) => sum + (p.total_payment || 0), 0)
 
-    // Use official first payment breakdown if available
-    const hasOfficialBreakdown = loanRecord && loanRecord.first_payment_interest && loanRecord.first_payment_principal
+    // Use mathematically correct breakdown: Principal Paid = Original Principal - Current Balance
+    // Interest Paid = Total Amount Paid - Principal Paid
+    // This is more accurate than summing individual payment breakdowns
+    if (loanRecord && totalPaid > 0) {
+      const principalPaid = loanRecord.principal - loanRecord.current_balance
+      const interestPaid = totalPaid - principalPaid
 
-    if (loanRecord && payments.length > 0) {
-      console.log('Payment breakdown calculation:', {
+      console.log('Total Paid Breakdown calculation:', {
         loanId,
-        first_payment_interest: loanRecord.first_payment_interest,
-        first_payment_principal: loanRecord.first_payment_principal,
-        hasOfficialBreakdown,
+        originalPrincipal: loanRecord.principal,
+        currentBalance: loanRecord.current_balance,
+        principalPaid,
+        totalPaid,
+        interestPaid,
         paymentsCount: payments.length
       })
+
+      return { principalPaid, interestPaid, totalPaid }
     }
 
-    for (const payment of payments) {
-      if (payment.payment_number === 1 && hasOfficialBreakdown) {
-        // Use official breakdown for payment 1
-        principalPaid += loanRecord!.first_payment_principal || 0
-        interestPaid += loanRecord!.first_payment_interest || 0
-      } else {
-        // Use calculated values for other payments
-        principalPaid += payment.principal_amount || 0
-        interestPaid += payment.interest_amount || 0
-      }
-    }
-
-    return { principalPaid, interestPaid, totalPaid }
+    return { principalPaid: 0, interestPaid: 0, totalPaid }
   } catch (err) {
     console.error('Failed to fetch payment breakdown:', err)
     return { principalPaid: 0, interestPaid: 0, totalPaid: 0 }
