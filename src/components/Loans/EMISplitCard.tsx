@@ -1,3 +1,5 @@
+import { Lightbulb } from 'lucide-react'
+
 /**
  * EMI Split Card - Shows Principal vs Interest breakdown
  * Key indicator: Makes users aware of interest they're paying
@@ -92,9 +94,10 @@ export default function EMISplitCard({
       </div>
 
       {/* Info Message */}
-      <div className="pt-1 border-t border-[var(--border)]">
+      <div className="pt-1 border-t border-[var(--border)] flex items-start gap-1.5">
+        <Lightbulb size={12} className="flex-shrink-0 mt-0.5 text-[var(--muted-foreground)]" />
         <p className={`${labelClass} text-[var(--muted-foreground)] leading-relaxed`}>
-          💡 Each month, {Math.round(principalPercent)}% goes to reducing your debt, {Math.round(interestPercent)}% goes to interest
+          Each month, {Math.round(principalPercent)}% goes to reducing your debt, {Math.round(interestPercent)}% goes to interest
         </p>
       </div>
     </div>

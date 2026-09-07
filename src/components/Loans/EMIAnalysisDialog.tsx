@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { analyzeFirstEMI, generatePaymentSchedule, FirstEMIAnalysis, PaymentScheduleItem } from '../../lib/loansService'
 import Button from '../UI/Button'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, BarChart3, Calendar, AlertTriangle, Info, CheckCircle } from 'lucide-react'
 
 interface EMIAnalysisDialogProps {
   principal: number
@@ -95,7 +95,10 @@ export default function EMIAnalysisDialog({
           <div className="space-y-4">
             {/* First EMI Analysis */}
             <div className="p-4 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
-              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">📊 First EMI Breakdown</p>
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 size={16} className="text-[var(--primary)]" />
+                <p className="text-[13px] font-semibold text-[var(--primary)]">First EMI Breakdown</p>
+              </div>
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-[var(--muted-foreground)]">Standard EMI:</span>
@@ -118,14 +121,18 @@ export default function EMIAnalysisDialog({
                   </div>
                 )}
               </div>
-              <p className="text-[12px] text-[var(--primary)] mt-3 leading-relaxed bg-white/10 p-2 rounded">
-                ✓ {analysis.note}
-              </p>
+              <div className="text-[12px] text-[var(--primary)] mt-3 leading-relaxed bg-white/10 p-2 rounded flex items-start gap-2">
+                <CheckCircle size={14} className="flex-shrink-0 mt-0.5 text-[var(--primary)]" />
+                <span>{analysis.note}</span>
+              </div>
             </div>
 
             {/* Payment Schedule Summary */}
             <div className="p-4 bg-[var(--muted)] rounded-lg">
-              <p className="text-[13px] font-semibold text-[var(--foreground)] mb-3">📅 Payment Schedule</p>
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar size={16} className="text-[var(--foreground)]" />
+                <p className="text-[13px] font-semibold text-[var(--foreground)]">Payment Schedule</p>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <p className="text-[11px] text-[var(--muted-foreground)] uppercase font-medium">Total EMIs</p>
@@ -178,7 +185,10 @@ export default function EMIAnalysisDialog({
             {/* Balance Check */}
             {hasBalanceDiscrepancy && emirsPaidCount > 0 ? (
               <div className="p-4 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
-                <p className="text-[13px] font-semibold text-[var(--warning)] mb-3">⚠️ Balance Mismatch Detected</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle size={16} className="text-[var(--warning)]" />
+                  <p className="text-[13px] font-semibold text-[var(--warning)]">Balance Mismatch Detected</p>
+                </div>
                 <div className="space-y-2.5 mb-3">
                   <div className="flex justify-between">
                     <span className="text-[12px] text-[var(--muted-foreground)]">You entered:</span>
@@ -209,13 +219,17 @@ export default function EMIAnalysisDialog({
                     <li>• Variable interest rates</li>
                   </ul>
                 </div>
-                <p className="text-[11px] font-semibold text-[var(--warning)] mt-3 bg-white/5 p-2 rounded">
-                  ℹ️ We'll use your entered balance. You can adjust it later if needed.
-                </p>
+                <div className="text-[11px] font-semibold text-[var(--warning)] mt-3 bg-white/5 p-2 rounded flex items-start gap-2">
+                  <Info size={14} className="flex-shrink-0 mt-0.5" />
+                  <span>We'll use your entered balance. You can adjust it later if needed.</span>
+                </div>
               </div>
             ) : (
               <div className="p-4 bg-[var(--success-soft)] border border-[var(--success)] rounded-lg">
-                <p className="text-[13px] font-semibold text-[var(--success)] mb-2">✓ Balance Verified</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle size={16} className="text-[var(--success)]" />
+                  <p className="text-[13px] font-semibold text-[var(--success)]">Balance Verified</p>
+                </div>
                 <p className="text-[12px] text-[var(--muted-foreground)]">
                   Your entered balance matches the calculated balance. Everything looks good!
                 </p>
@@ -224,7 +238,10 @@ export default function EMIAnalysisDialog({
 
             {/* Summary */}
             <div className="p-4 bg-[var(--primary-soft)] border border-[var(--primary)] rounded-lg">
-              <p className="text-[13px] font-semibold text-[var(--primary)] mb-3">📋 Loan Summary</p>
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 size={16} className="text-[var(--primary)]" />
+                <p className="text-[13px] font-semibold text-[var(--primary)]">Loan Summary</p>
+              </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-[12px] text-[var(--muted-foreground)]">Principal Amount:</span>
@@ -259,9 +276,10 @@ export default function EMIAnalysisDialog({
               <Button
                 variant="primary"
                 onClick={handleConfirm}
-                className="flex-1 text-sm py-2.5"
+                className="flex-1 text-sm py-2.5 flex items-center justify-center gap-2"
               >
-                ✓ Confirm & Create Loan
+                <CheckCircle size={16} />
+                Confirm & Create Loan
               </Button>
             </div>
           </div>
