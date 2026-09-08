@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Pin } from 'lucide-react'
 import Button from '../UI/Button'
-import { LoanFormInput, LoanType } from '../../lib/loansService'
+import { LoanFormInput, LoanType, calculateMonthlyInterest } from '../../lib/loansService'
 
 interface LoanFormProps {
   onSubmit: (data: LoanFormInput) => Promise<void>
@@ -36,6 +36,19 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   )
   const [errors, setErrors] = useState<Partial<LoanFormInput>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Auto-calculate EMI and balance for Jewel Loans
+  useEffect(() => {
+    if (formData.loan_type === 'Jewel Loan' && formData.principal && formData.interest_rate) {
+      const monthlyInterest = calculateMonthlyInterest(parseFloat(formData.principal), parseFloat(formData.interest_rate))
+      setFormData(prev => ({
+        ...prev,
+        emi_amount: monthlyInterest.toString(),
+        first_emi_amount: monthlyInterest.toString(),
+        current_balance: formData.principal
+      }))
+    }
+  }, [formData.loan_type, formData.principal, formData.interest_rate])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoanFormInput> = {}
@@ -125,7 +138,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
           {errors.principal && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.principal}</p>}
         </div>
         <div>
-          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Balance (₹)</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Balance (₹) {formData.loan_type === 'Jewel Loan' && <span className="text-[10px] text-[var(--muted-foreground)]">(Auto)</span>}</label>
           <input
             type="number"
             name="current_balance"
@@ -134,7 +147,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             placeholder="0"
             min="0"
             step="1"
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            disabled={formData.loan_type === 'Jewel Loan'}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.current_balance && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.current_balance}</p>}
         </div>
@@ -234,7 +248,9 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               <Pin size={14} className="text-[var(--primary)]" />
               EMI & First Payment Details
             </span><br/>
-            Enter the standard EMI for all 60 payments. If your first payment differs (stub interest), enter that amount separately.
+            {formData.loan_type === 'Jewel Loan'
+              ? 'Monthly payment is auto-calculated as: Principal × (Rate ÷ 12 ÷ 100). Payments are interest-only.'
+              : 'Enter the standard EMI for all payments. If your first payment differs (stub interest), enter that amount separately.'}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -248,7 +264,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               placeholder="32352"
               min="0"
               step="0.01"
-              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              disabled={formData.loan_type === 'Jewel Loan'}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
             {errors.emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.emi_amount}</p>}
           </div>
@@ -275,7 +292,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               placeholder="0"
               min="0"
               step="0.01"
-              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              disabled={formData.loan_type === 'Jewel Loan'}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
             {errors.first_emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_amount}</p>}
           </div>
