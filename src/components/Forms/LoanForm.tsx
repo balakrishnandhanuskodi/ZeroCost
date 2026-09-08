@@ -102,6 +102,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             <option value="Personal">Personal</option>
             <option value="Auto">Auto</option>
             <option value="Education">Education</option>
+            <option value="Jewel Loan">Jewel Loan (Gold)</option>
             <option value="Other">Other</option>
           </select>
         </div>

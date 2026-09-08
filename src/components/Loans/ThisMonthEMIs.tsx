@@ -1,4 +1,4 @@
-import { LoanRecord } from '../../lib/loansService'
+import { LoanRecord, calculateMonthlyInterest } from '../../lib/loansService'
 
 interface PaymentDue {
   lenderName: string
@@ -35,9 +35,14 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
       if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
         const isPaid = i <= loan.emis_paid_count
 
+        // For Jewel Loans, calculate monthly interest; otherwise use emi_amount
+        const emiAmount = loan.loan_type === 'Jewel Loan'
+          ? calculateMonthlyInterest(loan.principal, loan.interest_rate)
+          : (loan.emi_amount || 0)
+
         thisMonthPayments.push({
           lenderName: loan.lender_name,
-          emiAmount: loan.emi_amount || 0,
+          emiAmount,
           dueDate: dueDate.toISOString().split('T')[0],
           loanId: loan.id,
           isPaid,

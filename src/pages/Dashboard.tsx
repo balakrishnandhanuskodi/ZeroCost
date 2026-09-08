@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { getLoansByUser, calculateEMI, LoanRecord } from '../lib/loansService'
+import { getLoansByUser, calculateEMI, calculateMonthlyInterest, LoanRecord } from '../lib/loansService'
 import DashboardEMISplit from '../components/Loans/DashboardEMISplit'
 import ThisMonthEMIs from '../components/Loans/ThisMonthEMIs'
 
@@ -34,6 +34,10 @@ export default function Dashboard() {
   const activeLoanCount = loans.filter(l => l.status === 'active').length
 
   const totalEMI = loans.reduce((sum, loan) => {
+    if (loan.loan_type === 'Jewel Loan') {
+      // For Jewel Loans, use the monthly interest calculation
+      return sum + calculateMonthlyInterest(loan.principal, loan.interest_rate)
+    }
     const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
     return sum + (loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths))
   }, 0)
@@ -47,8 +51,13 @@ export default function Dashboard() {
     loans.forEach(loan => {
       const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
 
-      // For Payment 1: use official breakdown if available
-      if (loan.first_payment_interest && loan.first_payment_principal) {
+      // For Jewel Loans: 100% of payment is interest, 0% is principal
+      if (loan.loan_type === 'Jewel Loan') {
+        const monthlyInterest = calculateMonthlyInterest(loan.principal, loan.interest_rate)
+        totalInterest += monthlyInterest
+        totalPrincipal += 0
+      } else if (loan.first_payment_interest && loan.first_payment_principal) {
+        // For Payment 1: use official breakdown if available
         totalInterest += loan.first_payment_interest
         totalPrincipal += loan.first_payment_principal
       } else {

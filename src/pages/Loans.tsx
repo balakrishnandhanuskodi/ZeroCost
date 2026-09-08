@@ -519,6 +519,7 @@ export default function Loans() {
           firstEMIAmount={parseFloat(pendingFormData.first_emi_amount)}
           currentBalance={parseFloat(pendingFormData.current_balance)}
           emirsPaidCount={pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0}
+          loanType={pendingFormData.loan_type}
           onConfirm={handleEMIAnalysisConfirm}
           onCancel={handleEMIAnalysisCancel}
         />

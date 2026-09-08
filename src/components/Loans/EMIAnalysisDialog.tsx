@@ -12,6 +12,7 @@ interface EMIAnalysisDialogProps {
   firstEMIAmount: number
   currentBalance: number
   emirsPaidCount: number
+  loanType?: string
   onConfirm: (schedule: PaymentScheduleItem[]) => void
   onCancel: () => void
 }
@@ -25,12 +26,13 @@ export default function EMIAnalysisDialog({
   firstEMIAmount,
   currentBalance,
   emirsPaidCount,
+  loanType,
   onConfirm,
   onCancel
 }: EMIAnalysisDialogProps) {
   const [step, setStep] = useState<1 | 2>(1)
 
-  const analysis = analyzeFirstEMI(principal, interestRate, tenure, tenureUnit, firstEMIAmount)
+  const analysis = analyzeFirstEMI(principal, interestRate, tenure, tenureUnit, firstEMIAmount, loanType as any)
   const tenureMonths = tenureUnit === 'years' ? tenure * 12 : tenure
   const schedule = generatePaymentSchedule(
     'temp',
@@ -39,7 +41,10 @@ export default function EMIAnalysisDialog({
     tenureMonths,
     firstEMIDate,
     firstEMIAmount,
-    emirsPaidCount
+    firstEMIAmount,
+    emirsPaidCount,
+    0,
+    loanType as any
   )
 
   // Calculate expected current balance after already-paid EMIs
