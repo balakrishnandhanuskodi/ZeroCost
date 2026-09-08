@@ -559,6 +559,44 @@ export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecor
   }
 }
 
+// Fetch full payment schedule for a loan
+export async function getLoanPaymentSchedule(loanId: string): Promise<PaymentScheduleItem[]> {
+  if (!isSupabaseConfigured || !supabase) {
+    return []
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('loan_payments')
+      .select('*')
+      .eq('loan_id', loanId)
+      .order('payment_number', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching payment schedule:', error)
+      return []
+    }
+
+    return (data || []).map(item => ({
+      loan_id: item.loan_id,
+      payment_number: item.payment_number,
+      payment_month: item.payment_month,
+      due_date: item.due_date,
+      principal_amount: item.principal_amount,
+      interest_amount: item.interest_amount,
+      emi_amount: item.emi_amount,
+      total_payment: item.total_payment,
+      balance_after_payment: item.balance_after_payment,
+      status: item.status,
+      payment_date: item.payment_date,
+      skip_penalty: item.skip_penalty
+    }))
+  } catch (err) {
+    console.error('Failed to fetch payment schedule:', err)
+    return []
+  }
+}
+
 // Update payment schedule records (deletes old ones and creates new ones)
 export async function updateLoanPaymentSchedule(userId: string, loanId: string, schedule: PaymentScheduleItem[]): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) {
