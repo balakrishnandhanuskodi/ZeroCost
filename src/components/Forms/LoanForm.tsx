@@ -36,6 +36,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
   )
   const [errors, setErrors] = useState<Partial<LoanFormInput>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isEditing, setIsEditing] = useState(!initialData)
 
   // Auto-calculate EMI and balance for Jewel Loans
   useEffect(() => {
@@ -98,8 +99,22 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5 max-h-[80vh] overflow-y-auto">
-      {/* Lender Name & Loan Type */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Form Mode Toggle */}
+      {!isEditing && (
+        <div className="flex gap-2 mb-3">
+          <Button
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+            className="flex-1 text-xs py-1.5"
+            type="button"
+          >
+            Edit Loan Details
+          </Button>
+        </div>
+      )}
+
+      {/* Lender Name & Loan Type & Status */}
+      <div className="grid grid-cols-3 gap-2">
         <div>
           <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Lender Name</label>
           <input
@@ -107,8 +122,9 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="lender_name"
             value={formData.lender_name}
             onChange={handleChange}
+            disabled={!isEditing}
             placeholder="e.g., HDFC Bank"
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.lender_name && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.lender_name}</p>}
         </div>
@@ -118,7 +134,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="loan_type"
             value={formData.loan_type || 'Personal'}
             onChange={handleChange}
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            disabled={!isEditing}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           >
             <option value="Home">Home</option>
             <option value="Personal">Personal</option>
@@ -128,10 +145,24 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             <option value="Other">Other</option>
           </select>
         </div>
+        <div>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Status</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            disabled={!isEditing}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
+          >
+            <option value="active">Active</option>
+            <option value="closed">Closed</option>
+            <option value="defaulted">Defaulted</option>
+          </select>
+        </div>
       </div>
 
-      {/* Principal & Current Balance */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Principal & Current Balance & Interest Rate */}
+      <div className="grid grid-cols-3 gap-2">
         <div>
           <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Principal (₹)</label>
           <input
@@ -139,10 +170,11 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="principal"
             value={formData.principal}
             onChange={handleChange}
+            disabled={!isEditing}
             placeholder="0"
             min="0"
             step="1"
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.principal && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.principal}</p>}
         </div>
@@ -156,15 +188,11 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             placeholder="0"
             min="0"
             step="1"
-            disabled={formData.loan_type === 'Jewel Loan'}
+            disabled={formData.loan_type === 'Jewel Loan' || !isEditing}
             className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.current_balance && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.current_balance}</p>}
         </div>
-      </div>
-
-      {/* Interest Rate & Type */}
-      <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Rate (%) p.a.</label>
           <input
@@ -172,30 +200,32 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="interest_rate"
             value={formData.interest_rate}
             onChange={handleChange}
+            disabled={!isEditing}
             placeholder="10.65"
             min="0"
             max="100"
             step="0.01"
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.interest_rate && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.interest_rate}</p>}
         </div>
+      </div>
+
+      {/* Interest Type & Tenure & Unit */}
+      <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Type</label>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Interest Type</label>
           <select
             name="interest_type"
             value={formData.interest_type}
             onChange={handleChange}
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            disabled={!isEditing}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           >
             <option value="fixed">Fixed</option>
             <option value="variable">Variable</option>
           </select>
         </div>
-      </div>
-
-      {/* Tenure */}
-      <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Tenure</label>
           <input
@@ -203,10 +233,11 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="tenure"
             value={formData.tenure}
             onChange={handleChange}
+            disabled={!isEditing}
             placeholder="60"
             min="1"
             step="1"
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.tenure && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.tenure}</p>}
         </div>
@@ -216,7 +247,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="tenure_unit"
             value={formData.tenure_unit}
             onChange={handleChange}
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            disabled={!isEditing}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           >
             <option value="months">Months</option>
             <option value="years">Years</option>
@@ -224,8 +256,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
         </div>
       </div>
 
-      {/* Start Date & End Date */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Start Date & End Date & Pay Date */}
+      <div className="grid grid-cols-3 gap-2">
         <div>
           <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Start Date</label>
           <input
@@ -233,7 +265,8 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="start_date"
             value={formData.start_date}
             onChange={handleChange}
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            disabled={!isEditing}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
           {errors.start_date && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.start_date}</p>}
         </div>
@@ -244,7 +277,22 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             name="end_date"
             value={formData.end_date || ''}
             onChange={handleChange}
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            disabled={!isEditing}
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Pay Date (1-31)</label>
+          <input
+            type="number"
+            name="monthly_payment_date"
+            value={formData.monthly_payment_date || ''}
+            onChange={handleChange}
+            disabled={!isEditing}
+            placeholder="15"
+            min="1"
+            max="31"
+            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
           />
         </div>
       </div>
@@ -262,7 +310,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               : 'Enter the standard EMI for all payments. If your first payment differs (stub interest), enter that amount separately.'}
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">EMI Amount (₹) *</label>
             <input
@@ -270,10 +318,10 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               name="emi_amount"
               value={formData.emi_amount}
               onChange={handleChange}
+              disabled={formData.loan_type === 'Jewel Loan' || !isEditing}
               placeholder="32352"
               min="0"
               step="0.01"
-              disabled={formData.loan_type === 'Jewel Loan'}
               className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
             {errors.emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.emi_amount}</p>}
@@ -285,12 +333,11 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               name="first_emi_date"
               value={formData.first_emi_date}
               onChange={handleChange}
-              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              disabled={!isEditing}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
             {errors.first_emi_date && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_date}</p>}
           </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 mt-2">
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First EMI Amount (₹) *</label>
             <input
@@ -298,14 +345,16 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               name="first_emi_amount"
               value={formData.first_emi_amount}
               onChange={handleChange}
+              disabled={formData.loan_type === 'Jewel Loan' || !isEditing}
               placeholder="0"
               min="0"
               step="0.01"
-              disabled={formData.loan_type === 'Jewel Loan'}
               className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
             {errors.first_emi_amount && <p className="text-[10px] text-[var(--danger)] mt-0.5">{errors.first_emi_amount}</p>}
           </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2 mt-2">
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">First Payment Interest (₹)</label>
             <input
@@ -313,14 +362,13 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               name="first_payment_interest"
               value={formData.first_payment_interest || ''}
               onChange={handleChange}
+              disabled={!isEditing}
               placeholder="From schedule"
               min="0"
               step="0.01"
-              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
           </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 mt-2">
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5 text-[var(--muted-foreground)]">First Payment Principal (₹)</label>
             <input
@@ -342,36 +390,6 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
         </div>
       </div>
 
-      {/* Payment Date & Status */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Pay Date (1-31)</label>
-          <input
-            type="number"
-            name="monthly_payment_date"
-            value={formData.monthly_payment_date || ''}
-            onChange={handleChange}
-            placeholder="15"
-            min="1"
-            max="31"
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Status</label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-          >
-            <option value="active">Active</option>
-            <option value="closed">Closed</option>
-            <option value="defaulted">Defaulted</option>
-          </select>
-        </div>
-      </div>
-
       {/* Payment History (Optional) */}
       <div>
         <div className="mb-2 p-2 bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg">
@@ -380,7 +398,7 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
             If you've already paid some EMIs, enter the count and last payment date. System will mark them as paid.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">EMIs Already Paid</label>
             <input
@@ -388,9 +406,10 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               name="emis_paid_count"
               value={formData.emis_paid_count || ''}
               onChange={handleChange}
+              disabled={!isEditing}
               placeholder="0"
               min="0"
-              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
           </div>
           <div>
@@ -400,43 +419,69 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
               name="last_payment_date"
               value={formData.last_payment_date || ''}
               onChange={handleChange}
-              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              disabled={!isEditing}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Notes (Optional)</label>
+            <textarea
+              name="notes"
+              value={formData.notes || ''}
+              onChange={handleChange}
+              disabled={!isEditing}
+              placeholder="Add any notes..."
+              rows={1}
+              className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-60"
             />
           </div>
         </div>
       </div>
 
-      {/* Notes */}
-      <div>
-        <label className="block text-xs font-medium text-[var(--foreground)] mb-0.5">Notes (Optional)</label>
-        <textarea
-          name="notes"
-          value={formData.notes || ''}
-          onChange={handleChange}
-          placeholder="Add any notes..."
-          rows={2}
-          className="w-full px-2.5 py-1.5 border border-[var(--border)] rounded-lg bg-[var(--card)] text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        />
-      </div>
-
       {/* Actions */}
       <div className="flex gap-2 pt-3 border-t border-[var(--border)]">
-        <Button
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting || isLoading}
-          className="flex-1 text-xs py-1.5"
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={isSubmitting || isLoading}
-          className="flex-1 text-xs py-1.5"
-        >
-          {isSubmitting || isLoading ? 'Saving...' : 'Save'}
-        </Button>
+        {isEditing ? (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+              disabled={isSubmitting || isLoading}
+              className="flex-1 text-xs py-1.5"
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={isSubmitting || isLoading}
+              className="flex-1 text-xs py-1.5"
+            >
+              {isSubmitting || isLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting || isLoading}
+              className="flex-1 text-xs py-1.5"
+              type="button"
+            >
+              Back
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => setIsEditing(true)}
+              disabled={isSubmitting || isLoading}
+              className="flex-1 text-xs py-1.5"
+              type="button"
+            >
+              Edit & Update
+            </Button>
+          </>
+        )}
       </div>
     </form>
   )
