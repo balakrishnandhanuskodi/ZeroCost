@@ -63,6 +63,15 @@ export default function LoanForm({ onSubmit, onCancel, initialData, isLoading = 
     if (!formData.first_emi_date) newErrors.first_emi_date = 'First EMI date is required'
     if (!formData.first_emi_amount || parseFloat(formData.first_emi_amount) <= 0) newErrors.first_emi_amount = 'Valid first EMI amount required'
 
+    // Jewel Loan specific validation
+    if (formData.loan_type === 'Jewel Loan') {
+      const principal = parseFloat(formData.principal)
+      const balance = parseFloat(formData.current_balance)
+      if (Math.abs(principal - balance) > 0.01) {
+        newErrors.current_balance = 'For Jewel Loans, balance must equal principal (interest-only)'
+      }
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
