@@ -5,8 +5,9 @@ import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
+import LoanPaymentSchedule from '../components/Loans/LoanPaymentSchedule'
 import EMIAnalysisDialog from '../components/Loans/EMIAnalysisDialog'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, getPaidEMIBreakdown, createLoanPaymentSchedule, updateLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonthlyInterest, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, getPaidEMIBreakdown, createLoanPaymentSchedule, updateLoanPaymentSchedule, getLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
@@ -77,7 +78,8 @@ export default function Loans() {
           parseFloat(pendingFormData.emi_amount),
           parseFloat(pendingFormData.first_emi_amount),
           pendingFormData.emis_paid_count ? parseInt(pendingFormData.emis_paid_count) : 0,
-          pendingFormData.first_payment_interest ? parseFloat(pendingFormData.first_payment_interest) : 0
+          pendingFormData.first_payment_interest ? parseFloat(pendingFormData.first_payment_interest) : 0,
+          pendingFormData.loan_type as any
         )
 
         console.log(`Creating ${paymentSchedule.length} payment records for loan ${newLoan.id}`)
@@ -139,7 +141,8 @@ export default function Loans() {
           parseFloat(formData.emi_amount),
           parseFloat(formData.first_emi_amount),
           formData.emis_paid_count ? parseInt(formData.emis_paid_count) : 0,
-          formData.first_payment_interest ? parseFloat(formData.first_payment_interest) : 0
+          formData.first_payment_interest ? parseFloat(formData.first_payment_interest) : 0,
+          formData.loan_type as any
         )
 
         await updateLoanPaymentSchedule(user.id, editingLoan.id, paymentSchedule)
@@ -265,6 +268,9 @@ export default function Loans() {
   // Calculate totals
   const totalOutstanding = loans.reduce((sum, loan) => sum + loan.current_balance, 0)
   const totalEMI = loans.reduce((sum, loan) => {
+    if (loan.loan_type === 'Jewel Loan') {
+      return sum + calculateMonthlyInterest(loan.principal, loan.interest_rate)
+    }
     const tenureMonths = loan.tenure_unit === 'years' ? loan.tenure * 12 : loan.tenure
     return sum + (loan.emi_amount || calculateEMI(loan.principal, loan.interest_rate, tenureMonths))
   }, 0)
