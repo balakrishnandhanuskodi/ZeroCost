@@ -5,8 +5,9 @@ import Button from '../components/UI/Button'
 import Alert from '../components/UI/Alert'
 import LoanForm from '../components/Forms/LoanForm'
 import LoanEMIPieChart from '../components/Loans/LoanEMIPieChart'
+import LoanPaymentSchedule from '../components/Loans/LoanPaymentSchedule'
 import EMIAnalysisDialog from '../components/Loans/EMIAnalysisDialog'
-import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonthlyInterest, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, getPaidEMIBreakdown, createLoanPaymentSchedule, updateLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
+import { getLoansByUser, createLoan, updateLoan, deleteLoan, calculateEMI, calculateMonthlyInterest, calculateMonth1Amortization, generatePaymentSchedule, getLoanPaymentHistory, getPaidEMIBreakdown, createLoanPaymentSchedule, updateLoanPaymentSchedule, getLoanPaymentSchedule, PaymentScheduleItem, LoanRecord, LoanFormInput } from '../lib/loansService'
 
 export default function Loans() {
   const { user } = useAuth()
