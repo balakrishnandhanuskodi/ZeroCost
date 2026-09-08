@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 
-export type LoanType = 'Home' | 'Personal' | 'Auto' | 'Education' | 'Other'
+export type LoanType = 'Home' | 'Personal' | 'Auto' | 'Education' | 'Jewel Loan' | 'Other'
 export type LoanStatus = 'active' | 'closed' | 'defaulted'
 export type InterestType = 'fixed' | 'variable'
 export type TenureUnit = 'months' | 'years'
@@ -64,8 +64,22 @@ export interface FirstEMIAnalysis {
   note: string
 }
 
-export function analyzeFirstEMI(principal: number, rate: number, tenure: number, tenureUnit: TenureUnit, firstEMIAmount: number): FirstEMIAnalysis {
+export function analyzeFirstEMI(principal: number, rate: number, tenure: number, tenureUnit: TenureUnit, firstEMIAmount: number, loanType?: LoanType): FirstEMIAnalysis {
   const tenureMonths = tenureUnit === 'years' ? tenure * 12 : tenure
+
+  // For Jewel Loans, all payments are interest-only
+  if (loanType === 'Jewel Loan') {
+    const monthlyInterest = calculateMonthlyInterest(principal, rate)
+    const note = `This is an interest-only loan. Monthly payment: ₹${Math.round(monthlyInterest)}. Principal remains ₹${Math.round(principal)} unless prepaid.`
+    return {
+      standardEMI: Math.round(monthlyInterest),
+      firstEMIAmount: Math.round(firstEMIAmount),
+      stubInterest: 0,
+      hasStubPeriod: false,
+      note
+    }
+  }
+
   const standardEMI = calculateEMI(principal, rate, tenureMonths)
   const stubInterest = Math.round((firstEMIAmount - standardEMI) * 100) / 100
 
@@ -125,6 +139,12 @@ export function calculateEMI(principal: number, rate: number, months: number): n
   return (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
 }
 
+// Calculate monthly interest for gold/jewel loans (interest-only)
+export function calculateMonthlyInterest(principal: number, rate: number): number {
+  const monthlyRate = rate / 100 / 12
+  return Math.round(principal * monthlyRate * 100) / 100
+}
+
 // Calculate remaining tenure in months
 export function getRemainingMonths(startDate: string, tenureMonths: number): number {
   const start = new Date(startDate)
@@ -168,7 +188,8 @@ export function generatePaymentSchedule(
   emiAmount: number,
   firstEMIAmount: number,
   emirsPaidCount: number = 0,
-  firstPaymentInterest: number = 0
+  firstPaymentInterest: number = 0,
+  loanType?: LoanType
 ): PaymentScheduleItem[] {
   const monthlyRate = rate / 100 / 12
   const schedule: PaymentScheduleItem[] = []
@@ -176,18 +197,29 @@ export function generatePaymentSchedule(
   let balance = principal
   const firstDate = new Date(firstEMIDate)
 
+  // For Jewel Loans, calculate fixed monthly interest
+  const isJewelLoan = loanType === 'Jewel Loan'
+  const monthlyInterest = isJewelLoan ? calculateMonthlyInterest(principal, rate) : 0
+
   for (let i = 1; i <= tenureMonths; i++) {
     // Calculate due date (first EMI date + (i-1) months)
     const dueDate = new Date(firstDate)
     dueDate.setMonth(dueDate.getMonth() + (i - 1))
 
-    let interestAmount = Math.round(balance * monthlyRate * 100) / 100
+    let interestAmount: number
     let principalAmount: number
     let totalPayment: number
     const standardEMI = Math.round(emiAmount * 100) / 100
 
-    if (i === 1) {
+    if (isJewelLoan) {
+      // For Jewel Loans: 100% interest, 0% principal
+      interestAmount = monthlyInterest
+      principalAmount = 0
+      totalPayment = monthlyInterest
+      // Balance stays constant for Jewel Loans (no amortization)
+    } else if (i === 1) {
       // First payment - use official interest if provided, otherwise calculate
+      interestAmount = Math.round(balance * monthlyRate * 100) / 100
       if (firstPaymentInterest > 0) {
         interestAmount = Math.round(firstPaymentInterest * 100) / 100
         principalAmount = firstEMIAmount - interestAmount
@@ -196,13 +228,14 @@ export function generatePaymentSchedule(
         principalAmount = totalPayment - interestAmount
       }
       totalPayment = firstEMIAmount
+      balance = Math.max(0, balance - principalAmount)
     } else {
       // Subsequent payments - use standard EMI entered by user
+      interestAmount = Math.round(balance * monthlyRate * 100) / 100
       totalPayment = standardEMI
       principalAmount = totalPayment - interestAmount
+      balance = Math.max(0, balance - principalAmount)
     }
-
-    balance = Math.max(0, balance - principalAmount)
 
     const paymentMonth = new Date(firstDate)
     paymentMonth.setMonth(paymentMonth.getMonth() + (i - 1))
@@ -215,7 +248,7 @@ export function generatePaymentSchedule(
       interest_amount: Math.round(interestAmount * 100) / 100,
       emi_amount: standardEMI,
       total_payment: Math.round(totalPayment * 100) / 100,
-      balance_after_payment: Math.round(balance * 100) / 100,
+      balance_after_payment: isJewelLoan ? Math.round(principal * 100) / 100 : Math.round(balance * 100) / 100,
       status: i <= emirsPaidCount ? 'paid' : 'pending'
     })
   }
@@ -447,9 +480,31 @@ export async function getPaidEMIBreakdown(loanId: string, loanRecord?: LoanRecor
     // DIFFERENTIATE BY LOAN TYPE:
     // Personal Loans: Use fixed amortization schedule (sum individual payment breakdowns)
     // Home/Mortgage/LAP: Use actual ledger balance (current balance is ground truth)
+    // Jewel Loans: Interest-only, principal only changes via manual prepayment
     const isHomeOrMortgage = ['Home', 'Mortgage', 'LAP'].includes(loanRecord.loan_type)
+    const isJewelLoan = loanRecord.loan_type === 'Jewel Loan'
 
-    if (isHomeOrMortgage) {
+    if (isJewelLoan) {
+      // JEWEL LOAN LOGIC: Interest-only loans
+      // Principal Paid = Sanctioned Principal - Current Balance (only if manual prepayment)
+      // Interest Paid = All paid amounts are interest (principal_amount is always 0)
+      const principalPaid = Math.max(0, loanRecord.principal - loanRecord.current_balance)
+      const interestPaid = totalPaid - principalPaid
+
+      console.log('Jewel Loan Breakdown (Interest-Only):', {
+        loanId,
+        loanType: loanRecord.loan_type,
+        sanctionedPrincipal: loanRecord.principal,
+        currentBalance: loanRecord.current_balance,
+        principalPaid,
+        totalPaid,
+        interestPaid,
+        principalPercent: principalPaid > 0 ? Math.round((principalPaid / totalPaid) * 100) : 0,
+        paymentsCount: payments.length
+      })
+
+      return { principalPaid, interestPaid, totalPaid }
+    } else if (isHomeOrMortgage) {
       // HOME/MORTGAGE LOGIC: Principal Paid = Sanctioned Principal - Current Balance
       // Interest Paid = Total Amount Paid - Principal Paid
       const principalPaid = Math.max(0, loanRecord.principal - loanRecord.current_balance)
