@@ -34,14 +34,9 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
       dueDate.setMonth(dueDate.getMonth() + (i - 1))
 
       if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
-        // Check if payment was made by comparing with last_payment_date
-        // Payment is considered paid if last_payment_date is >= due date OR within same month
-        let isPaid = false
-        if (loan.last_payment_date) {
-          const lastPaymentDate = new Date(loan.last_payment_date)
-          // If last payment date is on or after due date, this payment is paid
-          isPaid = lastPaymentDate.getTime() >= dueDate.getTime()
-        }
+        // Payment is paid if the payment number is <= emis_paid_count
+        // (i.e., this payment has already been made in sequence)
+        const isPaid = i <= loan.emis_paid_count
 
         // For Jewel Loans, calculate monthly interest; otherwise use emi_amount
         const emiAmount = loan.loan_type === 'Jewel Loan'
