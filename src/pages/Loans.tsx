@@ -402,30 +402,29 @@ export default function Loans() {
                   </div>
                 </div>
 
-                {/* Two-Row Layout */}
-                {/* Row 1: Key Metrics */}
+                {/* Row 1: Key Financial Metrics */}
                 <div className="grid grid-cols-4 gap-1 mb-1.5">
                   <div className="bg-[var(--muted)] rounded p-1">
                     <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Principal</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{(loan.principal / 100000).toFixed(1)}L</p>
+                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-[var(--muted)] rounded p-1">
                     <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Balance</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{(loan.current_balance / 100000).toFixed(1)}L</p>
+                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-[var(--muted)] rounded p-1">
-                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Rate</p>
+                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Interest Rate</p>
                     <p className="text-[11px] font-semibold text-[var(--foreground)]">{loan.interest_rate.toFixed(2)}%</p>
                   </div>
                   <div className="bg-[var(--muted)] rounded p-1">
-                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">EMI</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{(Math.round(emi) / 1000).toFixed(0)}K</p>
+                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Monthly EMI</p>
+                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
                   </div>
                 </div>
 
-                {/* Row 2: Payment History + Chart */}
-                <div className="flex gap-1 items-center">
-                  {/* Payment History Section */}
+                {/* Row 2: Payment Summary + Chart */}
+                <div className="flex gap-1 items-start">
+                  {/* Payment Summary Section */}
                   <div className="grid grid-cols-2 gap-1 flex-1">
                     <div className="bg-[var(--success-soft)] border border-[var(--success)] rounded p-1">
                       <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">EMIs Paid</p>
@@ -433,7 +432,33 @@ export default function Loans() {
                     </div>
                     <div className="bg-[var(--info-soft)] border border-[var(--info)] rounded p-1">
                       <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Total Paid</p>
-                      <p className="text-[11px] font-bold text-[var(--info)]">₹{(Math.round(paymentHistory[loan.id]?.totalAmount || 0) / 100000).toFixed(1)}L</p>
+                      <p className="text-[11px] font-bold text-[var(--info)]">₹{Math.round(paymentHistory[loan.id]?.totalAmount || 0).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div className="bg-purple-100/20 border border-purple-300 rounded p-1">
+                      <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Interest (%)</p>
+                      <p className="text-[11px] font-bold text-purple-600">
+                        {(() => {
+                          const breakdown = paidEMIBreakdown[loan.id]
+                          if (breakdown && breakdown.totalPaid > 0) {
+                            return breakdown.totalPaid > 0 ? Math.round((breakdown.interestPaid / breakdown.totalPaid) * 100) : 0
+                          }
+                          const month1 = calculateMonth1Amortization(loan.principal, loan.interest_rate, emi)
+                          return emi > 0 ? Math.round((month1.interest / emi) * 100) : 0
+                        })()}%
+                      </p>
+                    </div>
+                    <div className="bg-orange-100/20 border border-orange-300 rounded p-1">
+                      <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Interest (₹)</p>
+                      <p className="text-[11px] font-bold text-orange-600">
+                        ₹{(() => {
+                          const breakdown = paidEMIBreakdown[loan.id]
+                          if (breakdown && breakdown.totalPaid > 0) {
+                            return Math.round(breakdown.interestPaid).toLocaleString('en-IN')
+                          }
+                          const month1 = calculateMonth1Amortization(loan.principal, loan.interest_rate, emi)
+                          return Math.round(month1.interest).toLocaleString('en-IN')
+                        })()}
+                      </p>
                     </div>
                   </div>
 
