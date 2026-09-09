@@ -490,6 +490,41 @@ export default function Loans() {
                     })()}
                   </div>
                 </div>
+
+                {/* Information & Insights Section */}
+                <div className="pt-2 border-t border-[var(--border)] bg-blue-50/30 dark:bg-blue-950/20 rounded-lg p-2.5">
+                  <p className="text-[12px] text-[var(--foreground)] font-medium mb-1">💡 Quick Insights</p>
+                  <div className="space-y-1">
+                    {loan.loan_type === 'Jewel Loan' ? (
+                      <>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Interest-only loan: Each payment covers interest only
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Principal remains ₹{loan.principal.toLocaleString('en-IN')} until prepayment/maturity
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Prepay to reduce total interest paid
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Outstanding: ₹{loan.current_balance.toLocaleString('en-IN')} | {tenureMonths - (paymentHistory[loan.id]?.count || 0)} payments remaining
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Monthly Interest: ₹{(() => {
+                            const month1 = calculateMonth1Amortization(loan.principal, loan.interest_rate, emi)
+                            return Math.round(month1.interest).toLocaleString('en-IN')
+                          })()} | Consider prepaying to reduce total interest
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Prepay ₹{(Math.round(emi) * 3).toLocaleString('en-IN')} to save ~₹{Math.round((emi * 3 * loan.interest_rate) / 100 / 12).toLocaleString('en-IN')} in interest
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             )
           })}
