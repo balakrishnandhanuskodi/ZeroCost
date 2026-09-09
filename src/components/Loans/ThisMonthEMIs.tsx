@@ -2,6 +2,7 @@ import { LoanRecord, calculateMonthlyInterest } from '../../lib/loansService'
 
 interface PaymentDue {
   lenderName: string
+  loanType: string
   emiAmount: number
   dueDate: string
   loanId: string
@@ -33,6 +34,8 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
       dueDate.setMonth(dueDate.getMonth() + (i - 1))
 
       if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
+        // Payment is paid if the payment number is <= emis_paid_count
+        // (i.e., this payment has already been made in sequence)
         const isPaid = i <= loan.emis_paid_count
 
         // For Jewel Loans, calculate monthly interest; otherwise use emi_amount
@@ -40,8 +43,11 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
           ? calculateMonthlyInterest(loan.principal, loan.interest_rate)
           : (loan.emi_amount || 0)
 
+        const loanTypeDisplay = loan.loan_type === 'Jewel Loan' ? 'Gold' : loan.loan_type
+
         thisMonthPayments.push({
           lenderName: loan.lender_name,
+          loanType: loanTypeDisplay,
           emiAmount,
           dueDate: dueDate.toISOString().split('T')[0],
           loanId: loan.id,
@@ -103,10 +109,17 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
                 }`}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-wrap">
                     <p className="text-[11px] font-semibold text-[var(--foreground)] truncate">
                       {payment.lenderName}
                     </p>
+                    <span className={`text-[9px] font-semibold px-1 py-0.5 rounded whitespace-nowrap ${
+                      payment.loanType === 'Gold'
+                        ? 'bg-yellow-100/40 text-yellow-700'
+                        : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                    }`}>
+                      {payment.loanType}
+                    </span>
                     <span className={`text-[10px] font-semibold px-1 rounded whitespace-nowrap ${
                       payment.isPaid
                         ? 'bg-[var(--success)] text-white'
