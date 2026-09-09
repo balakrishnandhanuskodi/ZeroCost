@@ -145,7 +145,7 @@ export default function Dashboard() {
             totalPrincipalPayment={Math.round(totalPrincipalInEMI)}
             totalInterestPayment={Math.round(totalInterestInEMI)}
           />
-          <ThisMonthEMIs loans={loans} />
+          <ThisMonthEMIs loans={loans} onLoanUpdate={loadLoans} />
         </div>
       )}
 
