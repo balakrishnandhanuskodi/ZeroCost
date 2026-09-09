@@ -359,84 +359,84 @@ export default function Loans() {
             return (
               <div
                 key={loan.id}
-                className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-2 hover:shadow-lg transition-all flex flex-col"
+                className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 hover:shadow-lg transition-all flex flex-col gap-3"
               >
                 {/* Header Section */}
-                <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="flex items-start justify-between gap-3 pb-2 border-b border-[var(--border)]">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 mb-0">
-                      <h3 className="font-display font-700 text-[14px] text-[var(--foreground)] truncate">{loan.lender_name}</h3>
-                      <span className={`text-[10px] font-semibold px-0.5 py-0 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-display font-700 text-[16px] text-[var(--foreground)] truncate">{loan.lender_name}</h3>
+                      <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${statusColors[loan.status]}`}>
                         {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
                       </span>
-                      <span className={`text-[9px] font-semibold px-1 py-0 rounded whitespace-nowrap ${
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap ${
                         loan.loan_type === 'Home'
                           ? 'bg-[var(--info-soft)] text-[var(--info)]'
                           : loan.loan_type === 'Jewel Loan'
                           ? 'bg-yellow-100/20 text-yellow-600'
                           : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
                       }`}>
-                        {loan.loan_type === 'Jewel Loan' ? 'Gold' : loan.loan_type.substring(0, 3)}
+                        {loan.loan_type}
                       </span>
                     </div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mt-0">
+                    <p className="text-[11px] text-[var(--muted-foreground)]">
                       {new Date(loan.start_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
                     </p>
                   </div>
-                  <div className="flex gap-0.5 flex-shrink-0">
+                  <div className="flex gap-1 flex-shrink-0">
                     <button
                       onClick={() => handleOpenForm(loan)}
-                      className="p-0.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded text-xs transition-colors"
+                      className="p-1 text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded transition-colors"
                       title="Edit"
                     >
-                      <Edit2 size={14} />
+                      <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => handleDeleteLoan(loan.id)}
                       disabled={deletingId === loan.id}
-                      className="p-0.5 text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded text-xs transition-colors disabled:opacity-50"
+                      className="p-1 text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded transition-colors disabled:opacity-50"
                       title="Delete"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
 
                 {/* Row 1: Key Financial Metrics */}
-                <div className="grid grid-cols-4 gap-1 mb-1.5">
-                  <div className="bg-[var(--muted)] rounded p-1">
-                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Principal</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{loan.principal.toLocaleString('en-IN')}</p>
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="bg-[var(--muted)] rounded-lg p-2.5">
+                    <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Principal</p>
+                    <p className="text-[13px] font-bold text-[var(--foreground)] text-right">₹{loan.principal.toLocaleString('en-IN')}</p>
                   </div>
-                  <div className="bg-[var(--muted)] rounded p-1">
-                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Balance</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{loan.current_balance.toLocaleString('en-IN')}</p>
+                  <div className="bg-[var(--muted)] rounded-lg p-2.5">
+                    <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Balance</p>
+                    <p className="text-[13px] font-bold text-[var(--foreground)] text-right">₹{loan.current_balance.toLocaleString('en-IN')}</p>
                   </div>
-                  <div className="bg-[var(--muted)] rounded p-1">
-                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Interest Rate</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">{loan.interest_rate.toFixed(2)}%</p>
+                  <div className="bg-[var(--muted)] rounded-lg p-2.5">
+                    <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Interest Rate</p>
+                    <p className="text-[13px] font-bold text-[var(--foreground)] text-right">{loan.interest_rate.toFixed(2)}%</p>
                   </div>
-                  <div className="bg-[var(--muted)] rounded p-1">
-                    <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Monthly EMI</p>
-                    <p className="text-[11px] font-semibold text-[var(--foreground)]">₹{Math.round(emi).toLocaleString('en-IN')}</p>
+                  <div className="bg-[var(--muted)] rounded-lg p-2.5">
+                    <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Monthly EMI</p>
+                    <p className="text-[13px] font-bold text-[var(--foreground)] text-right">₹{Math.round(emi).toLocaleString('en-IN')}</p>
                   </div>
                 </div>
 
                 {/* Row 2: Payment Summary + Chart */}
-                <div className="flex gap-1 items-start">
+                <div className="flex gap-3 items-start">
                   {/* Payment Summary Section */}
-                  <div className="grid grid-cols-2 gap-1 flex-1">
-                    <div className="bg-[var(--success-soft)] border border-[var(--success)] rounded p-1">
-                      <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">EMIs Paid</p>
-                      <p className="text-[11px] font-bold text-[var(--success)]">{paymentHistory[loan.id]?.count || 0}</p>
+                  <div className="grid grid-cols-2 gap-2 flex-1">
+                    <div className="bg-[var(--success-soft)] border border-[var(--success)] rounded-lg p-2.5">
+                      <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">EMIs Paid</p>
+                      <p className="text-[13px] font-bold text-[var(--success)] text-right">{paymentHistory[loan.id]?.count || 0}</p>
                     </div>
-                    <div className="bg-[var(--info-soft)] border border-[var(--info)] rounded p-1">
-                      <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Total Paid</p>
-                      <p className="text-[11px] font-bold text-[var(--info)]">₹{Math.round(paymentHistory[loan.id]?.totalAmount || 0).toLocaleString('en-IN')}</p>
+                    <div className="bg-[var(--info-soft)] border border-[var(--info)] rounded-lg p-2.5">
+                      <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Total Paid</p>
+                      <p className="text-[13px] font-bold text-[var(--info)] text-right">₹{Math.round(paymentHistory[loan.id]?.totalAmount || 0).toLocaleString('en-IN')}</p>
                     </div>
-                    <div className="bg-purple-100/20 border border-purple-300 rounded p-1">
-                      <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Interest (%)</p>
-                      <p className="text-[11px] font-bold text-purple-600">
+                    <div className="bg-purple-100/20 border border-purple-300 rounded-lg p-2.5">
+                      <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Interest (%)</p>
+                      <p className="text-[13px] font-bold text-purple-600 text-right">
                         {(() => {
                           const breakdown = paidEMIBreakdown[loan.id]
                           if (breakdown && breakdown.totalPaid > 0) {
@@ -447,9 +447,9 @@ export default function Loans() {
                         })()}%
                       </p>
                     </div>
-                    <div className="bg-orange-100/20 border border-orange-300 rounded p-1">
-                      <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-medium">Interest (₹)</p>
-                      <p className="text-[11px] font-bold text-orange-600">
+                    <div className="bg-orange-100/20 border border-orange-300 rounded-lg p-2.5">
+                      <p className="text-[9px] text-[var(--muted-foreground)] uppercase font-semibold mb-1">Interest (₹)</p>
+                      <p className="text-[13px] font-bold text-orange-600 text-right">
                         ₹{(() => {
                           const breakdown = paidEMIBreakdown[loan.id]
                           if (breakdown && breakdown.totalPaid > 0) {
@@ -463,7 +463,7 @@ export default function Loans() {
                   </div>
 
                   {/* Chart */}
-                  <div className="w-24 h-24 flex-shrink-0">
+                  <div className="w-28 h-28 flex-shrink-0">
                     {(() => {
                       const breakdown = paidEMIBreakdown[loan.id]
                       if (breakdown && breakdown.totalPaid > 0) {
@@ -488,6 +488,41 @@ export default function Loans() {
                         />
                       )
                     })()}
+                  </div>
+                </div>
+
+                {/* Information & Insights Section */}
+                <div className="pt-2 border-t border-[var(--border)] bg-blue-50/30 dark:bg-blue-950/20 rounded-lg p-2.5">
+                  <p className="text-[12px] text-[var(--foreground)] font-medium mb-1">💡 Quick Insights</p>
+                  <div className="space-y-1">
+                    {loan.loan_type === 'Jewel Loan' ? (
+                      <>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Interest-only loan: Each payment covers interest only
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Principal remains ₹{loan.principal.toLocaleString('en-IN')} until prepayment/maturity
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Prepay to reduce total interest paid
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Outstanding: ₹{loan.current_balance.toLocaleString('en-IN')} | {tenureMonths - (paymentHistory[loan.id]?.count || 0)} payments remaining
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Monthly Interest: ₹{(() => {
+                            const month1 = calculateMonth1Amortization(loan.principal, loan.interest_rate, emi)
+                            return Math.round(month1.interest).toLocaleString('en-IN')
+                          })()} | Consider prepaying to reduce total interest
+                        </p>
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
+                          • Prepay ₹{(Math.round(emi) * 3).toLocaleString('en-IN')} to save ~₹{Math.round((emi * 3 * loan.interest_rate) / 100 / 12).toLocaleString('en-IN')} in interest
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
