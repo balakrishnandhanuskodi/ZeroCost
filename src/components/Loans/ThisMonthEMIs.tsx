@@ -62,6 +62,8 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
   thisMonthPayments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 
   const totalDue = thisMonthPayments.reduce((sum, p) => sum + p.emiAmount, 0)
+  const paidAmount = thisMonthPayments.reduce((sum, p) => p.isPaid ? sum + p.emiAmount : sum, 0)
+  const balanceToPay = thisMonthPayments.reduce((sum, p) => p.isPaid ? sum : sum + p.emiAmount, 0)
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00')
@@ -87,14 +89,37 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
         </div>
       ) : (
         <>
-          {/* Total Due */}
-          <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg p-2 mb-2">
-            <p className="text-[12px] font-semibold text-[var(--muted-foreground)] uppercase mb-0.5">
-              Total Due This Month
-            </p>
-            <p className="font-display font-700 text-lg text-[var(--warning)]">
-              ₹{totalDue.toLocaleString('en-IN')}
-            </p>
+          {/* Total Due Summary Grid */}
+          <div className="grid grid-cols-3 gap-1.5 mb-2">
+            {/* Total EMI */}
+            <div className="bg-[var(--warning-soft)] border border-[var(--warning)] rounded-lg p-2">
+              <p className="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase mb-0.5">
+                Total EMI
+              </p>
+              <p className="font-display font-700 text-base text-[var(--warning)]">
+                ₹{totalDue.toLocaleString('en-IN')}
+              </p>
+            </div>
+
+            {/* Paid */}
+            <div className="bg-[var(--success-soft)] border border-[var(--success)] rounded-lg p-2">
+              <p className="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase mb-0.5">
+                Paid
+              </p>
+              <p className="font-display font-700 text-base text-[var(--success)]">
+                ₹{paidAmount.toLocaleString('en-IN')}
+              </p>
+            </div>
+
+            {/* Balance to Pay */}
+            <div className="bg-orange-100/40 dark:bg-orange-950/30 border border-orange-300 dark:border-orange-700 rounded-lg p-2">
+              <p className="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase mb-0.5">
+                Balance to Pay
+              </p>
+              <p className="font-display font-700 text-base text-orange-600 dark:text-orange-500">
+                ₹{balanceToPay.toLocaleString('en-IN')}
+              </p>
+            </div>
           </div>
 
           {/* EMI List */}
