@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { LoanRecord, calculateMonthlyInterest } from '../../lib/loansService'
 
 interface PaymentDue {
@@ -10,6 +11,7 @@ interface PaymentDue {
 
 interface ThisMonthEMIsProps {
   loans: LoanRecord[]
+  onLoanUpdate?: () => void
 }
 
 interface PaymentDueWithStatus extends PaymentDue {
@@ -17,7 +19,16 @@ interface PaymentDueWithStatus extends PaymentDue {
   paymentNumber: number
 }
 
-export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
+interface PaymentDateModal {
+  isOpen: boolean
+  loanId: string
+  paymentNumber: number
+  selectedDate: string
+}
+
+export default function ThisMonthEMIs({ loans, onLoanUpdate }: ThisMonthEMIsProps) {
+  const [dateModal, setDateModal] = useState<PaymentDateModal>({ isOpen: false, loanId: '', paymentNumber: 0, selectedDate: '' })
+  const [isUpdating, setIsUpdating] = useState(false)
   const today = new Date()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
@@ -68,6 +79,42 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00')
     return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })
+  }
+
+  const handleMarkAsPaid = async (loanId: string, paymentNumber: number) => {
+    const loan = loans.find(l => l.id === loanId)
+    if (!loan) return
+
+    setDateModal({ isOpen: true, loanId, paymentNumber, selectedDate: new Date().toISOString().split('T')[0] })
+  }
+
+  const handleConfirmPayment = async () => {
+    if (!dateModal.isOpen || !dateModal.loanId) return
+
+    setIsUpdating(true)
+    try {
+      const loan = loans.find(l => l.id === dateModal.loanId)
+      if (!loan) return
+
+      const response = await fetch('/api/loans/mark-paid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          loanId: dateModal.loanId,
+          paymentDate: dateModal.selectedDate,
+          paymentNumber: dateModal.paymentNumber
+        })
+      })
+
+      if (response.ok) {
+        setDateModal({ isOpen: false, loanId: '', paymentNumber: 0, selectedDate: '' })
+        onLoanUpdate?.()
+      }
+    } catch (error) {
+      console.error('Error marking payment as paid:', error)
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (
@@ -156,6 +203,15 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
                   <p className="text-[10px] text-[var(--muted-foreground)] mt-0.5">
                     Due: {formatDate(payment.dueDate)}
                   </p>
+                  {!payment.isPaid && (
+                    <button
+                      onClick={() => handleMarkAsPaid(payment.loanId, payment.paymentNumber)}
+                      disabled={isUpdating}
+                      className="mt-1 text-[9px] px-2 py-1 rounded bg-[var(--primary)] text-white hover:opacity-80 disabled:opacity-50 transition-opacity"
+                    >
+                      Mark as Paid
+                    </button>
+                  )}
                 </div>
                 <p className="text-[12px] font-bold text-[var(--foreground)] ml-2 flex-shrink-0">
                   ₹{payment.emiAmount.toLocaleString('en-IN')}
@@ -164,6 +220,46 @@ export default function ThisMonthEMIs({ loans }: ThisMonthEMIsProps) {
             ))}
           </div>
         </>
+      )}
+
+      {/* Date Modal */}
+      {dateModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 w-80">
+            <h3 className="font-display font-700 text-sm text-[var(--foreground)] mb-3">
+              Mark Payment as Paid
+            </h3>
+
+            <div className="mb-4">
+              <label className="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase mb-1 block">
+                Payment Date
+              </label>
+              <input
+                type="date"
+                value={dateModal.selectedDate}
+                onChange={(e) => setDateModal({ ...dateModal, selectedDate: e.target.value })}
+                className="w-full px-2 py-1.5 border border-[var(--border)] rounded bg-[var(--muted)] text-[var(--foreground)] text-[12px]"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setDateModal({ isOpen: false, loanId: '', paymentNumber: 0, selectedDate: '' })}
+                disabled={isUpdating}
+                className="flex-1 px-3 py-1.5 rounded border border-[var(--border)] text-[12px] font-semibold text-[var(--foreground)] hover:bg-[var(--muted)] disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmPayment}
+                disabled={isUpdating}
+                className="flex-1 px-3 py-1.5 rounded bg-[var(--primary)] text-white text-[12px] font-semibold hover:opacity-80 disabled:opacity-50 transition-opacity"
+              >
+                {isUpdating ? 'Saving...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
