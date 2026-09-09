@@ -402,23 +402,23 @@ export default function Loans() {
                   </div>
                 </div>
 
-                {/* Row 1: Key Financial Metrics - 4 Column Grid with Dynamic Font Scaling */}
+                {/* Row 1: Key Financial Metrics - 4 Column Grid Standardized Font Sizes */}
                 <div className="grid grid-cols-4 gap-1.5">
                   <div className="bg-[var(--muted)] rounded p-1.5 flex flex-col min-w-0">
                     <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-semibold mb-0.5 truncate">Principal</p>
-                    <p className="text-[11px] font-bold text-[var(--foreground)] text-right whitespace-nowrap text-ellipsis overflow-hidden" style={{fontSize: 'clamp(0.65rem, 1.2vw, 0.9rem)'}}>₹{loan.principal.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] font-bold text-[var(--foreground)] text-right whitespace-nowrap text-ellipsis overflow-hidden">₹{loan.principal.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-[var(--muted)] rounded p-1.5 flex flex-col min-w-0">
                     <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-semibold mb-0.5 truncate">Balance</p>
-                    <p className="text-[11px] font-bold text-[var(--foreground)] text-right whitespace-nowrap text-ellipsis overflow-hidden" style={{fontSize: 'clamp(0.65rem, 1.2vw, 0.9rem)'}}>₹{loan.current_balance.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] font-bold text-[var(--foreground)] text-right whitespace-nowrap text-ellipsis overflow-hidden">₹{loan.current_balance.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-[var(--muted)] rounded p-1.5 flex flex-col min-w-0">
                     <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-semibold mb-0.5 truncate">Rate</p>
-                    <p className="text-[11px] font-bold text-[var(--foreground)] text-right">{loan.interest_rate.toFixed(2)}%</p>
+                    <p className="text-[10px] font-bold text-[var(--foreground)] text-right">{loan.interest_rate.toFixed(2)}%</p>
                   </div>
                   <div className="bg-[var(--muted)] rounded p-1.5 flex flex-col min-w-0">
                     <p className="text-[8px] text-[var(--muted-foreground)] uppercase font-semibold mb-0.5 truncate">EMI</p>
-                    <p className="text-[11px] font-bold text-[var(--foreground)] text-right whitespace-nowrap text-ellipsis overflow-hidden" style={{fontSize: 'clamp(0.65rem, 1.2vw, 0.9rem)'}}>₹{Math.round(emi).toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] font-bold text-[var(--foreground)] text-right whitespace-nowrap text-ellipsis overflow-hidden">₹{Math.round(emi).toLocaleString('en-IN')}</p>
                   </div>
                 </div>
 
