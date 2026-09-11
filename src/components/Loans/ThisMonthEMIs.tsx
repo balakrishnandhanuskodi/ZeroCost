@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { LoanRecord, calculateMonthlyInterest } from '../../lib/loansService'
-import { supabase } from '../../lib/supabaseClient'
+import { supabase } from '../../lib/supabase'
 
 interface PaymentDue {
   lenderName: string
