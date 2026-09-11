@@ -96,7 +96,7 @@ export default function ThisMonthEMIs({ loans, onLoanUpdate }: ThisMonthEMIsProp
       const loan = loans.find(l => l.id === dateModal.loanId)
       if (!loan) return
 
-      const response = await fetch('/api/loans/mark-paid', {
+      const response = await fetch('/.netlify/functions/loans/mark-paid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
