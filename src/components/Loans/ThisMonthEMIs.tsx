@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LoanRecord, calculateMonthlyInterest } from '../../lib/loansService'
+import { supabase } from '../../lib/supabaseClient'
 
 interface PaymentDue {
   lenderName: string
@@ -96,20 +97,24 @@ export default function ThisMonthEMIs({ loans, onLoanUpdate }: ThisMonthEMIsProp
       const loan = loans.find(l => l.id === dateModal.loanId)
       if (!loan) return
 
-      const response = await fetch('/.netlify/functions/loans/mark-paid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          loanId: dateModal.loanId,
-          paymentDate: dateModal.selectedDate,
-          paymentNumber: dateModal.paymentNumber
-        })
-      })
+      // Update emis_paid_count to the max of current and paymentNumber
+      const newEmisPaidCount = Math.max(loan.emis_paid_count, dateModal.paymentNumber)
 
-      if (response.ok) {
-        setDateModal({ isOpen: false, loanId: '', paymentNumber: 0, selectedDate: '' })
-        onLoanUpdate?.()
+      const { error } = await supabase
+        .from('loans')
+        .update({
+          emis_paid_count: newEmisPaidCount,
+          last_payment_date: dateModal.selectedDate
+        })
+        .eq('id', dateModal.loanId)
+
+      if (error) {
+        console.error('Error marking payment as paid:', error)
+        return
       }
+
+      setDateModal({ isOpen: false, loanId: '', paymentNumber: 0, selectedDate: '' })
+      onLoanUpdate?.()
     } catch (error) {
       console.error('Error marking payment as paid:', error)
     } finally {
