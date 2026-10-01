@@ -46,7 +46,7 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
   const parseLine = (line: string, rowNum: number): ParsedExpense | null => {
     // Remove extra spaces
     line = line.trim()
-    if (!line) return null
+    if (!line || line.includes('Logo') || line.includes('Details') || line.includes('•')) return null
 
     // Try CSV format: date,category,description,amount
     const csvMatch = line.match(/^([^,]+),([^,]+),([^,]+),(.+)$/)
@@ -87,7 +87,35 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
       }
     }
 
-    throw new Error('Unsupported format. Use: date,category,description,amount')
+    // Try Google Pay format: "Sent ₹5000.00 using..." or "Paid ₹20.00 to..."
+    const gpayMatch = line.match(/^(Sent|Paid)\s+(₹[\d,]+\.?\d*)\s+(using|to)\s+(.+?)(?:\s+Bank\s+Account|$)/)
+    if (gpayMatch) {
+      const [, action, amountStr, , description] = gpayMatch
+      const category = action === 'Sent' ? 'Transfer' : 'Others'
+
+      return {
+        date: new Date().toISOString().split('T')[0], // Use today's date if not specified
+        category,
+        description: description.trim(),
+        amount: parseAmount(amountStr),
+        _row: rowNum
+      }
+    }
+
+    // Try simple format: amount - description
+    const simpleMatch = line.match(/^(₹[\d,]+\.?\d*)\s*-\s*(.+)$/)
+    if (simpleMatch) {
+      const [, amountStr, description] = simpleMatch
+      return {
+        date: new Date().toISOString().split('T')[0],
+        category: 'Others',
+        description: description.trim(),
+        amount: parseAmount(amountStr),
+        _row: rowNum
+      }
+    }
+
+    throw new Error('Could not parse. Supported: date,category,desc,amount OR "Sent ₹100 using Merchant" OR "₹100 - Description"')
   }
 
   const parseDate = (dateStr: string): string => {
