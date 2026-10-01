@@ -17,6 +17,7 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
   const [parsedExpenses, setParsedExpenses] = useState<ParsedExpense[]>([])
   const [step, setStep] = useState<'input' | 'preview'>('input')
   const [errors, setErrors] = useState<string[]>([])
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
 
   const parseExpenses = (text: string) => {
     const lines = text.trim().split('\n').filter(line => line.trim())
@@ -37,6 +38,7 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
 
     setParsedExpenses(expenses)
     setErrors(parseErrors)
+    setSelectedIndices(new Set(expenses.map((_, idx) => idx)))
 
     if (expenses.length > 0) {
       setStep('preview')
@@ -182,13 +184,27 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
     return amount
   }
 
+  const toggleExpense = (idx: number) => {
+    const newSelected = new Set(selectedIndices)
+    if (newSelected.has(idx)) {
+      newSelected.delete(idx)
+    } else {
+      newSelected.add(idx)
+    }
+    setSelectedIndices(newSelected)
+  }
+
   const handleImport = async () => {
-    const expenses = parsedExpenses.map(({ _row, ...exp }) => exp)
+    const selectedExpenses = parsedExpenses
+      .map(({ _row, ...exp }, idx) => selectedIndices.has(idx) ? exp : null)
+      .filter((exp): exp is ExpenseInput => exp !== null)
+
     try {
-      await onImport(expenses)
+      await onImport(selectedExpenses)
       setPastedText('')
       setParsedExpenses([])
       setErrors([])
+      setSelectedIndices(new Set())
       setStep('input')
       onClose()
     } catch (err) {
@@ -261,6 +277,20 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
                 <table className="w-full text-[11px]">
                   <thead className="bg-[var(--muted)] border-b border-[var(--border)]">
                     <tr>
+                      <th className="px-2 py-2 text-center w-6">
+                        <input
+                          type="checkbox"
+                          checked={selectedIndices.size === parsedExpenses.length && parsedExpenses.length > 0}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedIndices(new Set(parsedExpenses.map((_, idx) => idx)))
+                            } else {
+                              setSelectedIndices(new Set())
+                            }
+                          }}
+                          className="w-4 h-4 rounded cursor-pointer"
+                        />
+                      </th>
                       <th className="px-2 py-2 text-left">Date</th>
                       <th className="px-2 py-2 text-left">Category</th>
                       <th className="px-2 py-2 text-left">Description</th>
@@ -269,7 +299,15 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
                   </thead>
                   <tbody>
                     {parsedExpenses.map((exp, idx) => (
-                      <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]">
+                      <tr key={idx} className={`border-b border-[var(--border)] ${selectedIndices.has(idx) ? 'bg-[var(--muted)]' : 'opacity-50 bg-red-50 dark:bg-red-950/20'} hover:bg-[var(--muted)]`}>
+                        <td className="px-2 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIndices.has(idx)}
+                            onChange={() => toggleExpense(idx)}
+                            className="w-4 h-4 rounded cursor-pointer"
+                          />
+                        </td>
                         <td className="px-2 py-2">{exp.date}</td>
                         <td className="px-2 py-2">{exp.category}</td>
                         <td className="px-2 py-2 truncate max-w-xs">{exp.description}</td>
@@ -282,7 +320,13 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
 
               <div className="mt-3 p-2 bg-[var(--muted)] rounded-lg">
                 <p className="text-[10px] text-[var(--muted-foreground)]">
-                  <span className="font-semibold">Total:</span> ₹{parsedExpenses.reduce((sum, exp) => sum + exp.amount, 0).toLocaleString('en-IN')}
+                  <span className="font-semibold">Selected:</span> {selectedIndices.size} of {parsedExpenses.length} transactions
+                </p>
+                <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+                  <span className="font-semibold">Total:</span> ₹{parsedExpenses
+                    .filter((_, idx) => selectedIndices.has(idx))
+                    .reduce((sum, exp) => sum + exp.amount, 0)
+                    .toLocaleString('en-IN')}
                 </p>
               </div>
             </div>
@@ -296,10 +340,10 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
               </button>
               <button
                 onClick={handleImport}
-                disabled={isLoading || parsedExpenses.length === 0}
+                disabled={isLoading || selectedIndices.size === 0}
                 className="flex-1 px-3 py-2 rounded bg-[var(--primary)] text-white text-[12px] font-semibold hover:opacity-80 disabled:opacity-50 transition-opacity"
               >
-                {isLoading ? 'Importing...' : 'Import All'}
+                {isLoading ? 'Importing...' : `Import (${selectedIndices.size})`}
               </button>
             </div>
           </>
