@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import AddExpenseModal from '../components/Expenses/AddExpenseModal'
+import ImportExpensesModal from '../components/Expenses/ImportExpensesModal'
 import ExpenseList from '../components/Expenses/ExpenseList'
 import ExpenseSummary from '../components/Expenses/ExpenseSummary'
 import { getExpensesByMonth, getMonthlyStats, addExpense, deleteExpense, type Expense, type ExpenseInput } from '../lib/expensesService'
@@ -10,6 +11,7 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const today = new Date()
@@ -42,6 +44,19 @@ export default function Expenses() {
       await loadExpenses()
     } catch (err) {
       console.error('Error adding expense:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleImportExpenses = async (expenses: ExpenseInput[]) => {
+    if (!user) return
+    setIsSubmitting(true)
+    try {
+      await Promise.all(expenses.map(exp => addExpense(user.id, exp)))
+      await loadExpenses()
+    } catch (err) {
+      console.error('Error importing expenses:', err)
     } finally {
       setIsSubmitting(false)
     }
@@ -95,13 +110,21 @@ export default function Expenses() {
   return (
     <div className="p-4 pb-20">
       {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-display font-700 text-[var(--foreground)] mb-1">
-          Expenses
-        </h1>
-        <p className="text-sm text-[var(--muted-foreground)]">
-          Track your daily spending
-        </p>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-700 text-[var(--foreground)] mb-1">
+            Expenses
+          </h1>
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Track your daily spending
+          </p>
+        </div>
+        <button
+          onClick={() => setIsImportModalOpen(true)}
+          className="px-3 py-2 rounded border border-[var(--border)] text-[12px] font-semibold text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors whitespace-nowrap"
+        >
+          📋 Import
+        </button>
       </div>
 
       {/* Month Navigation */}
@@ -155,6 +178,14 @@ export default function Expenses() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddExpense}
+        isLoading={isSubmitting}
+      />
+
+      {/* Import Expenses Modal */}
+      <ImportExpensesModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportExpenses}
         isLoading={isSubmitting}
       />
     </div>
