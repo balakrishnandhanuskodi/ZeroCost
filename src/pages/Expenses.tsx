@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import AddExpenseModal from '../components/Expenses/AddExpenseModal'
 import ImportExpensesModal from '../components/Expenses/ImportExpensesModal'
-import ExpenseList from '../components/Expenses/ExpenseList'
+import CalendarView from '../components/Expenses/CalendarView'
+import WeekView from '../components/Expenses/WeekView'
 import ExpenseSummary from '../components/Expenses/ExpenseSummary'
 import { getExpensesByMonth, getMonthlyStats, addExpense, deleteExpense, type Expense, type ExpenseInput } from '../lib/expensesService'
 
@@ -127,8 +128,8 @@ export default function Expenses() {
         </button>
       </div>
 
-      {/* Month Navigation */}
-      <div className="flex items-center justify-between mb-4 gap-2">
+      {/* Month Navigation - Desktop Only */}
+      <div className="hidden md:flex items-center justify-between mb-4 gap-2">
         <button
           onClick={handlePrevMonth}
           className="p-2 hover:bg-[var(--muted)] rounded transition-colors"
@@ -159,18 +160,35 @@ export default function Expenses() {
         </div>
       )}
 
-      {/* Expense List */}
+      {/* Expense Views */}
       {isLoading ? (
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 text-center">
           <div className="w-8 h-8 rounded-full bg-[var(--muted)] mx-auto mb-2 animate-pulse" />
           <p className="text-xs text-[var(--muted-foreground)]">Loading expenses...</p>
         </div>
       ) : (
-        <ExpenseList
-          expenses={expenses}
-          onDelete={handleDeleteExpense}
-          isLoading={isSubmitting}
-        />
+        <>
+          {/* Desktop Calendar View */}
+          <div className="hidden md:block">
+            <CalendarView
+              expenses={expenses}
+              selectedMonth={selectedMonth}
+              onPrevMonth={handlePrevMonth}
+              onNextMonth={handleNextMonth}
+              onDeleteExpense={handleDeleteExpense}
+              isLoading={isSubmitting}
+            />
+          </div>
+
+          {/* Mobile Week View */}
+          <div className="md:hidden">
+            <WeekView
+              expenses={expenses}
+              onDeleteExpense={handleDeleteExpense}
+              isLoading={isSubmitting}
+            />
+          </div>
+        </>
       )}
 
       {/* Add Expense Modal */}
