@@ -1,28 +1,47 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getLoansByUser, calculateEMI, calculateMonthlyInterest, LoanRecord } from '../lib/loansService'
+import { getExpensesByMonth } from '../lib/expensesService'
 import DashboardEMISplit from '../components/Loans/DashboardEMISplit'
 import ThisMonthEMIs from '../components/Loans/ThisMonthEMIs'
+import ExpenseSummary from '../components/Expenses/ExpenseSummary'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [loans, setLoans] = useState<LoanRecord[]>([])
+  const [expenses, setExpenses] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (user) {
-      loadLoans()
+      loadData()
     }
   }, [user])
 
+  const loadData = async () => {
+    await Promise.all([loadLoans(), loadExpenses()])
+  }
+
   const loadLoans = async () => {
     if (!user) return
-    setIsLoading(true)
     try {
       const data = await getLoansByUser(user.id)
       setLoans(data)
     } catch (err) {
       console.error('Failed to load loans:', err)
+    }
+  }
+
+  const loadExpenses = async () => {
+    if (!user) return
+    try {
+      const today = new Date()
+      const data = await getExpensesByMonth(user.id, today.getFullYear(), today.getMonth() + 1)
+      setExpenses(data)
+    } catch (err) {
+      console.error('Failed to load expenses:', err)
     } finally {
       setIsLoading(false)
     }
@@ -146,6 +165,37 @@ export default function Dashboard() {
             totalInterestPayment={Math.round(totalInterestInEMI)}
           />
           <ThisMonthEMIs loans={loans} onLoanUpdate={loadLoans} />
+        </div>
+      )}
+
+      {/* Expense Summary Card */}
+      {!isLoading && (
+        <div className="mb-4">
+          {expenses.length > 0 ? (
+            <ExpenseSummary
+              totalAmount={expenses.reduce((sum, exp) => sum + exp.amount, 0)}
+              categoryBreakdown={expenses.reduce((acc, exp) => {
+                if (!acc[exp.category]) acc[exp.category] = { amount: 0, count: 0 }
+                acc[exp.category].amount += exp.amount
+                acc[exp.category].count += 1
+                return acc
+              }, {} as Record<string, { amount: number; count: number }>)}
+              transactionCount={expenses.length}
+              averageDaily={expenses.reduce((sum, exp) => sum + exp.amount, 0) / new Set(expenses.map(e => e.date)).size}
+              onAddClick={() => navigate('/expenses')}
+            />
+          ) : (
+            <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4">
+              <h2 className="font-display font-700 text-sm text-[var(--foreground)] mb-1">Daily Expenses</h2>
+              <p className="text-xs text-[var(--muted-foreground)] mb-3">Track your daily spending</p>
+              <button
+                onClick={() => navigate('/expenses')}
+                className="px-3 py-1.5 rounded bg-[var(--primary)] text-white text-[12px] font-semibold hover:opacity-80 transition-opacity"
+              >
+                Start Tracking Expenses
+              </button>
+            </div>
+          )}
         </div>
       )}
 
