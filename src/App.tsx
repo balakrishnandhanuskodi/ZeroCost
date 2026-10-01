@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Budget from './pages/Budget'
 import Loans from './pages/Loans'
+import Expenses from './pages/Expenses'
 import Goals from './pages/Goals'
 import Savings from './pages/Savings'
 import Reports from './pages/Reports'
@@ -54,6 +55,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Loans />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/expenses"
+            element={
+              <ProtectedRoute>
+                <Expenses />
               </ProtectedRoute>
             }
           />

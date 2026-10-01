@@ -229,21 +229,21 @@ export default function ThisMonthEMIs({ loans, onLoanUpdate }: ThisMonthEMIsProp
 
       {/* Date Modal */}
       {dateModal.isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 w-80">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 w-full max-w-sm">
             <h3 className="font-display font-700 text-sm text-[var(--foreground)] mb-3">
               Mark Payment as Paid
             </h3>
 
             <div className="mb-4">
-              <label className="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase mb-1 block">
+              <label className="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase mb-2 block">
                 Payment Date
               </label>
               <input
                 type="date"
                 value={dateModal.selectedDate}
                 onChange={(e) => setDateModal({ ...dateModal, selectedDate: e.target.value })}
-                className="w-full px-2 py-1.5 border border-[var(--border)] rounded bg-[var(--muted)] text-[var(--foreground)] text-[12px]"
+                className="w-full px-3 py-2 border border-[var(--border)] rounded bg-[var(--muted)] text-[var(--foreground)] text-[14px]"
               />
             </div>
 
@@ -251,14 +251,14 @@ export default function ThisMonthEMIs({ loans, onLoanUpdate }: ThisMonthEMIsProp
               <button
                 onClick={() => setDateModal({ isOpen: false, loanId: '', paymentNumber: 0, selectedDate: '' })}
                 disabled={isUpdating}
-                className="flex-1 px-3 py-1.5 rounded border border-[var(--border)] text-[12px] font-semibold text-[var(--foreground)] hover:bg-[var(--muted)] disabled:opacity-50 transition-colors"
+                className="flex-1 px-3 py-2.5 rounded border border-[var(--border)] text-[12px] font-semibold text-[var(--foreground)] hover:bg-[var(--muted)] disabled:opacity-50 transition-colors active:scale-95"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmPayment}
                 disabled={isUpdating}
-                className="flex-1 px-3 py-1.5 rounded bg-[var(--primary)] text-white text-[12px] font-semibold hover:opacity-80 disabled:opacity-50 transition-opacity"
+                className="flex-1 px-3 py-2.5 rounded bg-[var(--primary)] text-white text-[12px] font-semibold hover:opacity-80 disabled:opacity-50 transition-opacity active:scale-95"
               >
                 {isUpdating ? 'Saving...' : 'Confirm'}
               </button>
