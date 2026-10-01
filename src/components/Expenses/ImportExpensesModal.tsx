@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Edit2, Check, X } from 'lucide-react'
 import { ExpenseInput, EXPENSE_CATEGORIES } from '../../lib/expensesService'
 
 interface ParsedExpense extends ExpenseInput {
@@ -18,6 +19,8 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
   const [step, setStep] = useState<'input' | 'preview'>('input')
   const [errors, setErrors] = useState<string[]>([])
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
+  const [editingIdx, setEditingIdx] = useState<number | null>(null)
+  const [editData, setEditData] = useState<ParsedExpense | null>(null)
 
   const parseExpenses = (text: string) => {
     const lines = text.trim().split('\n').filter(line => line.trim())
@@ -194,6 +197,26 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
     setSelectedIndices(newSelected)
   }
 
+  const startEdit = (idx: number) => {
+    setEditingIdx(idx)
+    setEditData({ ...parsedExpenses[idx] })
+  }
+
+  const saveEdit = () => {
+    if (editingIdx !== null && editData) {
+      const updated = [...parsedExpenses]
+      updated[editingIdx] = editData
+      setParsedExpenses(updated)
+      setEditingIdx(null)
+      setEditData(null)
+    }
+  }
+
+  const cancelEdit = () => {
+    setEditingIdx(null)
+    setEditData(null)
+  }
+
   const handleImport = async () => {
     const selectedExpenses = parsedExpenses
       .map(({ _row, ...exp }, idx) => selectedIndices.has(idx) ? exp : null)
@@ -205,6 +228,8 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
       setParsedExpenses([])
       setErrors([])
       setSelectedIndices(new Set())
+      setEditingIdx(null)
+      setEditData(null)
       setStep('input')
       onClose()
     } catch (err) {
@@ -299,19 +324,98 @@ export default function ImportExpensesModal({ isOpen, onClose, onImport, isLoadi
                   </thead>
                   <tbody>
                     {parsedExpenses.map((exp, idx) => (
-                      <tr key={idx} className={`border-b border-[var(--border)] ${selectedIndices.has(idx) ? 'bg-[var(--muted)]' : 'opacity-50 bg-red-50 dark:bg-red-950/20'} hover:bg-[var(--muted)]`}>
-                        <td className="px-2 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIndices.has(idx)}
-                            onChange={() => toggleExpense(idx)}
-                            className="w-4 h-4 rounded cursor-pointer"
-                          />
-                        </td>
-                        <td className="px-2 py-2">{exp.date}</td>
-                        <td className="px-2 py-2">{exp.category}</td>
-                        <td className="px-2 py-2 truncate max-w-xs">{exp.description}</td>
-                        <td className="px-2 py-2 text-right font-semibold">₹{exp.amount.toLocaleString('en-IN')}</td>
+                      <tr key={idx} className={`border-b border-[var(--border)] ${selectedIndices.has(idx) ? 'bg-[var(--muted)]' : 'opacity-50 bg-red-50 dark:bg-red-950/20'}`}>
+                        {editingIdx === idx && editData ? (
+                          <>
+                            <td className="px-2 py-2 text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedIndices.has(idx)}
+                                onChange={() => toggleExpense(idx)}
+                                className="w-4 h-4 rounded cursor-pointer"
+                              />
+                            </td>
+                            <td className="px-2 py-2">
+                              <input
+                                type="date"
+                                value={editData.date}
+                                onChange={(e) => setEditData({ ...editData, date: e.target.value })}
+                                className="w-full px-1.5 py-1 border border-[var(--border)] rounded bg-[var(--background)] text-[var(--foreground)] text-[10px]"
+                              />
+                            </td>
+                            <td className="px-2 py-2">
+                              <select
+                                value={editData.category}
+                                onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                                className="w-full px-1.5 py-1 border border-[var(--border)] rounded bg-[var(--background)] text-[var(--foreground)] text-[10px]"
+                              >
+                                {EXPENSE_CATEGORIES.map(cat => (
+                                  <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-2 py-2">
+                              <input
+                                type="text"
+                                value={editData.description}
+                                onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                                className="w-full px-1.5 py-1 border border-[var(--border)] rounded bg-[var(--background)] text-[var(--foreground)] text-[10px]"
+                              />
+                            </td>
+                            <td className="px-2 py-2">
+                              <div className="flex gap-1 items-center">
+                                <input
+                                  type="number"
+                                  value={editData.amount}
+                                  onChange={(e) => setEditData({ ...editData, amount: parseFloat(e.target.value) || 0 })}
+                                  className="w-20 px-1.5 py-1 border border-[var(--border)] rounded bg-[var(--background)] text-[var(--foreground)] text-[10px] text-right"
+                                  step="0.01"
+                                  min="0"
+                                />
+                                <button
+                                  onClick={saveEdit}
+                                  className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400"
+                                  title="Save"
+                                >
+                                  <Check size={14} />
+                                </button>
+                                <button
+                                  onClick={cancelEdit}
+                                  className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
+                                  title="Cancel"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="px-2 py-2 text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedIndices.has(idx)}
+                                onChange={() => toggleExpense(idx)}
+                                className="w-4 h-4 rounded cursor-pointer"
+                              />
+                            </td>
+                            <td className="px-2 py-2">{exp.date}</td>
+                            <td className="px-2 py-2">{exp.category}</td>
+                            <td className="px-2 py-2 truncate max-w-xs">{exp.description}</td>
+                            <td className="px-2 py-2">
+                              <div className="flex gap-2 items-center justify-end">
+                                <span className="font-semibold">₹{exp.amount.toLocaleString('en-IN')}</span>
+                                <button
+                                  onClick={() => startEdit(idx)}
+                                  className="p-1 rounded hover:bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        )}
                       </tr>
                     ))}
                   </tbody>
