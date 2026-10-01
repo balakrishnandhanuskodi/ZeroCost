@@ -46,12 +46,12 @@ CREATE POLICY "Users can delete own expenses"
 
 -- Create trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_expenses_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $update_expenses_updated_at$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$update_expenses_updated_at$ LANGUAGE plpgsql;
 
 CREATE TRIGGER expenses_updated_at_trigger
 BEFORE UPDATE ON expenses
